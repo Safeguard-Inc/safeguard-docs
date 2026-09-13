@@ -1,0 +1,153 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# One active run per (workflow, ref): a rapid push sequence supersedes stale
+# runs instead of queueing them.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-lint:
+    name: workflow files (actionlint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Validate every workflow with actionlint before anything else runs.
+      # The fetch and the checksum check are retried as one atomic unit: a CDN
+      # that answers 200 with a truncated body is discarded and refetched
+      # rather than failing the gate, while the pinned digest stays the only
+      # artifact the job will accept.
+      - name: Lint workflow files (pinned actionlint, checksum-verified)
+        run: |
+          ACTIONLINT_SHA256="8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+          ACTIONLINT_URL="https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz"
+          fetched=0
+          for attempt in 1 2 3 4 5; do
+            rm -f /tmp/actionlint.tar.gz
+            if curl --proto '=https' --tlsv1.2 -sSfL --retry 3 --retry-all-errors --retry-delay 2 \
+                 -o /tmp/actionlint.tar.gz "$ACTIONLINT_URL" \
+              && test -s /tmp/actionlint.tar.gz \
+              && echo "$ACTIONLINT_SHA256  /tmp/actionlint.tar.gz" | sha256sum --check --status --; then
+              echo "actionlint archive checksum-verified on attempt ${attempt}"
+              fetched=1
+              break
+            fi
+            echo "::warning::actionlint download did not verify on attempt ${attempt}; retrying"
+            sleep $((attempt * 2))
+          done
+          if [ "$fetched" -ne 1 ]; then
+            echo "::error::no checksum-verified actionlint archive after 5 attempts"
+            exit 1
+          fi
+          rm -rf /tmp/actionlint && mkdir -p /tmp/actionlint
+          tar xzf /tmp/actionlint.tar.gz -C /tmp/actionlint
+          /tmp/actionlint/actionlint -color
+
+  checks:
+    name: engine parity · links · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273da90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      # The reference engine on the site is only trustworthy if it produces
+      # exactly the decisions the upstream project recorded. This is the gate
+      # that stops the documentation from teaching the wrong behaviour.
+      - name: Engine parity with the upstream golden fixture
+        run: npm test
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      # A documentation hub whose links 404 is a documentation hub nobody
+      # reads to the end. Also fails the build if secret material reaches a
+      # page that will be published.
+      - name: Local references and published secrets
+        run: python3 scripts/check-links.py
+
+      - name: Vercel configuration is valid JSON with security headers
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          config = json.load(open("vercel.json"))
+          headers = {
+              h["key"]
+              for rule in config.get("headers", [])
+              for h in rule.get("headers", [])
+          }
+          required = {
+              "Content-Security-Policy",
+              "X-Content-Type-Options",
+              "X-Frame-Options",
+              "Referrer-Policy",
+              "Strict-Transport-Security",
+          }
+          missing = required - headers
+          if missing:
+              print(f"vercel.json is missing security headers: {sorted(missing)}", file=sys.stderr)
+              sys.exit(1)
+          print(f"vercel.json ok; {len(headers)} header keys configured")
+          PY
+
+      - name: Every page is well-formed enough to serve
+        run: |
+          python3 - <<'PY'
+          import html.parser, pathlib, sys
+
+          class Checker(html.parser.HTMLParser):
+              def __init__(self, name):
+                  super().__init__()
+                  self.name = name
+                  self.problems = []
+                  self.stack = []
+                  self.void = {"area","base","br","col","embed","hr","img","input",
+                               "link","meta","source","track","wbr","path","rect","circle"}
+
+              def handle_starttag(self, tag, attrs):
+                  if tag not in self.void:
+                      self.stack.append(tag)
+
+              def handle_endtag(self, tag):
+                  if tag in self.void:
+                      return
+                  if not self.stack:
+                      self.problems.append(f"</{tag}> without an opening tag")
+                  elif self.stack[-1] != tag:
+                      self.problems.append(f"</{tag}> closes <{self.stack[-1]}>")
+                      if tag in self.stack:
+                          while self.stack and self.stack.pop() != tag:
+                              pass
+                  else:
+                      self.stack.pop()
+
+          failures = 0
+          for page in sorted(pathlib.Path(".").rglob("*.html")):
+              if ".git" in page.parts:
+                  continue
+              checker = Checker(page)
+              checker.feed(page.read_text(encoding="utf-8"))
+              for problem in checker.problems:
+                  print(f"FAIL {page}: {problem}", file=sys.stderr)
+                  failures += 1
+              if checker.stack:
+                  print(f"FAIL {page}: unclosed {checker.stack}", file=sys.stderr)
+                  failures += 1
+          if failures:
+              sys.exit(1)
+          print("all pages are well-formed")
+          PY

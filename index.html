@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Safeguard — compliance infrastructure for Stellar Confidential Tokens</title>
+<meta name="description" content="Safeguard is a three-repository compliance stack for Stellar Confidential Tokens: define the rules, enforce them on-chain, verify what happened. Live on Testnet.">
+<meta property="og:title" content="Safeguard — compliance infrastructure for Stellar Confidential Tokens">
+<meta property="og:description" content="Define the rules. Enforce them on-chain. Verify what happened. Live on Stellar Testnet.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2 4 5.5v6c0 5 3.4 9.3 8 10.5 4.6-1.2 8-5.5 8-10.5v-6L12 2Z" stroke="#4ade9b" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="m8.5 12 2.5 2.5 4.5-5" stroke="#4ade9b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Safeguard
+    </a>
+    <nav class="site">
+      <a href="index.html" aria-current="page">Overview</a>
+      <a href="demo.html">Live demo</a>
+      <a href="docs/architecture.html">Architecture</a>
+      <a href="docs/contracts.html">Contracts</a>
+      <a href="https://github.com/Safeguard-Inc">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Live on Stellar Testnet</p>
+    <h1>Compliance infrastructure for<br>Stellar Confidential Tokens</h1>
+    <p class="lede">
+      Confidential tokens hide amounts and balances. They do not hide
+      <em>accounts</em> — and that is where compliance lives. Safeguard is the
+      reusable, versioned policy layer that issuers otherwise re-implement for
+      every deployment: define the rules, enforce them on-chain, and verify
+      what happened.
+    </p>
+    <div class="btns">
+      <a class="btn primary" href="demo.html">Try the decision engine</a>
+      <a class="btn" href="docs/contracts.html">Live contract addresses</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The problem</h2>
+    <div class="narrow">
+      <p>
+        Stellar's Confidential Token design keeps transaction amounts and
+        balances private while preserving the compliance surface area:
+        addresses stay visible, and the protocol preview already exposes policy
+        contracts, allow/block-list identity registries, account freezing, SAC
+        passthrough and auditor functionality.
+      </p>
+      <p>
+        What is missing is the layer between those primitives and an actual
+        deployment. Every issuer that needs allowlists, sanctions screening and
+        jurisdiction rules ends up writing the same rule engine, the same
+        versioning scheme and the same decision semantics — usually without
+        anyone able to show that two implementations agree on a contested case.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Three repositories, one pipeline</h2>
+    <p class="lede">Strict separation of duties. The dependency chain is one-way and versioned.</p>
+
+    <div class="flow" role="img" aria-label="Pipeline diagram: safeguard-policy defines, safeguard-hooks enforces, safeguard-audit verifies">
+             SAFEGUARD
+                 │
+       ┌─────────┼─────────┐
+       ▼         ▼         ▼
+    POLICY      HOOKS     AUDIT
+    DEFINE     ENFORCE    VERIFY
+       │           │         │
+       │  versioned policy interfaces (schemas + SDKs)
+       ├──────────▶│
+       │           │  versioned compliance events
+       │           ├────────▶│
+       │           │         │
+    "what are   "run them  "what
+     the rules"  on-chain"  happened"
+    </div>
+
+    <div class="grid cols-3" style="margin-top:1.5rem">
+      <div class="card">
+        <span class="badge layer">Define</span>
+        <h3>safeguard-policy</h3>
+        <p>
+          The policy model, versioned rule primitives, on-chain registries and
+          a deterministic <code>APPROVE</code>/<code>BLOCK</code>/<code>FLAG</code>
+          engine with a documented precedence order.
+        </p>
+      </div>
+      <div class="card">
+        <span class="badge layer">Enforce</span>
+        <h3>safeguard-hooks</h3>
+        <p>
+          A fail-closed Soroban compliance-hooks contract that gates all six
+          confidential-token operations, with admin-gated freeze administration
+          and optional SAC passthrough.
+        </p>
+      </div>
+      <div class="card">
+        <span class="badge layer">Verify</span>
+        <h3>safeguard-audit</h3>
+        <p>
+          Append-only audit records with chained integrity digests,
+          authorization, investigation, evidence packages and reproducible
+          reports.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Why it is different</h2>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3>Fail closed, everywhere</h3>
+        <p>
+          Missing information never silently approves. An unknown account
+          status flags. An unknown jurisdiction takes the rule's action. An
+          unreachable policy contract denies. Unbound tokens deny.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Precedence pinned by tests</h3>
+        <p>
+          Two implementations of the same policy cannot disagree about a
+          contested case, because the evaluation order is documented and
+          enforced by property tests rather than left to interpretation.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Codes that never move</h3>
+        <p>
+          Reason codes and contract error codes are assign-only. A code quoted
+          in a stored record, a log line or an incident never shifts meaning,
+          because removed variants keep their number.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Documented cost</h3>
+        <p>
+          Every public contract function is measured in stroops and published.
+          Enforcement gates short-circuit, so a denial is cheaper than an
+          approval.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Live on Testnet</h2>
+    <p class="lede">
+      These are deployed contracts, not a mock. Every address below was read
+      back from the network after deployment.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Layer</th><th>Contract</th><th>State</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Policy</strong> (DEFINE)</td>
+          <td><code>CDVME6OPYZO6RAIWRFKLI3ACZHPNZK7GDBIX7YSIER3QLA2SO47QX5IB</code></td>
+          <td><span class="pill APPROVE">active</span> schema v1, <code>institutional-default</code> activated</td>
+        </tr>
+        <tr>
+          <td><strong>Hooks</strong> (ENFORCE)</td>
+          <td><code>CC7UKMCY3J7LB2WGU6D3MPRSSK3RKEC6MEXJJKOXRPTZAPRNXKPVPKPN</code></td>
+          <td><span class="pill APPROVE">active</span> initialized, policy wired, token bound</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">
+      Confidential Tokens on Stellar are a developer preview. Treat this
+      deployment as a rehearsal, not production. The admin secret key is never
+      stored in the repositories — it is read from the
+      <code>SAFEGUARD_ADMIN_SK</code> environment variable.
+    </p>
+    <div class="btns">
+      <a class="btn" href="docs/contracts.html">Full deployment record</a>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Quickstart</h2>
+    <pre><code># 1. Define — evaluate a policy locally, no network needed
+git clone https://github.com/Safeguard-Inc/safeguard-policy
+cd safeguard-policy &amp;&amp; cargo test --workspace
+
+# 2. Enforce — build the contract that gates token operations
+git clone https://github.com/Safeguard-Inc/safeguard-hooks
+cd safeguard-hooks &amp;&amp; cargo build --release --target wasm32v1-none -p compliance-hooks
+
+# 3. Verify — record and verify what actually happened
+git clone https://github.com/Safeguard-Inc/safeguard-audit
+cd safeguard-audit &amp;&amp; cargo test --workspace</code></pre>
+    <div class="btns">
+      <a class="btn primary" href="demo.html">Try the decision engine in your browser</a>
+      <a class="btn" href="https://github.com/Safeguard-Inc">Browse the repositories</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>
+      Safeguard Inc. — compliance infrastructure for Stellar Confidential Tokens.
+      Licensed under Apache-2.0.
+    </p>
+    <p>
+      <a href="https://github.com/Safeguard-Inc/safeguard-policy">policy</a> ·
+      <a href="https://github.com/Safeguard-Inc/safeguard-hooks">hooks</a> ·
+      <a href="https://github.com/Safeguard-Inc/safeguard-audit">audit</a> ·
+      <a href="https://github.com/Safeguard-Inc/safeguard-docs">docs</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

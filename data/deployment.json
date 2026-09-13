@@ -1,0 +1,18 @@
+{
+  "status": "live",
+  "platform": "vercel",
+  "url": "https://safeguard-docs.vercel.app",
+  "repository": "https://github.com/Safeguard-Inc/safeguard-docs",
+  "note": "Served from the deployment itself, so the README badge reports the deployment's own recorded status instead of a hard-coded value.",
+  "extends": [
+    "safeguard-policy",
+    "safeguard-hooks",
+    "safeguard-audit"
+  ],
+  "testnet": {
+    "policy_contract": "CDVME6OPYZO6RAIWRFKLI3ACZHPNZK7GDBIX7YSIER3QLA2SO47QX5IB",
+    "hooks_contract": "CC7UKMCY3J7LB2WGU6D3MPRSSK3RKEC6MEXJJKOXRPTZAPRNXKPVPKPN",
+    "network": "testnet",
+    "rpc_url": "https://soroban-testnet.stellar.org"
+  }
+}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live demo — Safeguard policy decision engine</title>
+<meta name="description" content="Evaluate the Safeguard policy decision engine in your browser: account status, allowlist, denylist, sanctions and jurisdiction, with the full gate trace.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2 4 5.5v6c0 5 3.4 9.3 8 10.5 4.6-1.2 8-5.5 8-10.5v-6L12 2Z" stroke="#4ade9b" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="m8.5 12 2.5 2.5 4.5-5" stroke="#4ade9b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Safeguard
+    </a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="demo.html" aria-current="page">Live demo</a>
+      <a href="docs/architecture.html">Architecture</a>
+      <a href="docs/contracts.html">Contracts</a>
+      <a href="https://github.com/Safeguard-Inc">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Runs entirely in your browser</p>
+    <h1>Policy decision engine</h1>
+    <p class="lede">
+      Build an evaluation request and see the decision the engine resolves to,
+      together with every gate it considered — in order.
+    </p>
+  </div>
+</section>
+
+<section style="padding-top:0;border-bottom:none">
+  <div class="wrap">
+    <div class="demo-grid">
+
+      <div class="card">
+        <h3 style="margin-top:0">Evaluation request</h3>
+
+        <div class="field">
+          <label for="policy">Policy</label>
+          <select id="policy">
+            <option value="combined" selected>example-combined (v1)</option>
+            <option value="default">institutional-default (v1)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="status">Account status <span style="text-transform:none;letter-spacing:0">(structural)</span></label>
+          <select id="status">
+            <option value="active" selected>active</option>
+            <option value="restricted">restricted</option>
+            <option value="frozen">frozen</option>
+            <option value="suspended">suspended</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Allowlist</label>
+          <div class="switch">
+            <input type="checkbox" id="allow-member" checked>
+            <label for="allow-member">Subject is a member</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Denylist</label>
+          <div class="switch">
+            <input type="checkbox" id="deny-match">
+            <label for="deny-match">Subject matched the denylist</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Sanctions</label>
+          <div class="switch">
+            <input type="checkbox" id="sanction-match">
+            <label for="sanction-match">Screening produced a match</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="region">Jurisdiction region</label>
+          <select id="region">
+            <option value="US" selected>US — permitted</option>
+            <option value="GB">GB — permitted</option>
+            <option value="RU">RU — restricted</option>
+            <option value="IR">IR — prohibited</option>
+            <option value="ZZ">ZZ — not in any list (unknown)</option>
+          </select>
+        </div>
+
+        <div class="btns" style="margin-top:0.5rem">
+          <button class="btn primary" id="preset-clean" type="button">Compliant subject</button>
+          <button class="btn" id="preset-sanctions" type="button">Sanctions match</button>
+          <button class="btn" id="preset-frozen" type="button">Frozen account</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="result">
+          <div class="result-head">
+            <span class="pill" id="decision-pill">—</span>
+            <span class="mono" style="color:var(--fg-muted)" id="reason-code"></span>
+          </div>
+          <table style="margin:0">
+            <tbody id="decision-detail"></tbody>
+          </table>
+        </div>
+
+        <h3>Gate trace</h3>
+        <p class="note" style="margin-top:0">
+          Gates are evaluated in the documented order and the first decisive
+          outcome wins; later gates never run.
+        </p>
+        <div class="result trace" id="trace"></div>
+
+        <h3>Decision document</h3>
+        <pre><code id="json"></code></pre>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section style="border-top:1px solid var(--border)">
+  <div class="wrap">
+    <h2>Is this the real engine?</h2>
+    <div class="narrow">
+      <p>
+        It is a faithful mirror of the documented behaviour, and it is held to
+        the project's own decisions. The site's test suite feeds this engine
+        the policies from
+        <a href="https://github.com/Safeguard-Inc/safeguard-policy/tree/main/policies">safeguard-policy</a>
+        and asserts that the <code>(decision, reason code, rule id)</code>
+        triples it produces are exactly the ones recorded in the upstream golden
+        fixture —
+        <code>crates/safeguard-sdk/tests/fixtures/decisions.json</code>.
+      </p>
+      <p>
+        The authoritative implementations remain the Rust engine in
+        <code>safeguard-policy/crates/safeguard-core</code> (off-chain) and the
+        Soroban contract in <code>safeguard-policy/crates/safeguard-contract</code>
+        (on-chain). This page exists so you can see the semantics without
+        cloning, building or funding a wallet.
+      </p>
+      <p class="note">
+        This demo does not touch the deployed Testnet contracts. The
+        authoritative state lives on-chain at the addresses listed on the
+        <a href="docs/contracts.html">contracts page</a>; evaluation against the
+        live contract additionally requires the subject's registry state, which
+        the contract resolves itself.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>
+      Safeguard Inc. — compliance infrastructure for Stellar Confidential Tokens.
+      Licensed under Apache-2.0.
+    </p>
+  </div>
+</footer>
+
+<script type="module" src="assets/app.js"></script>
+
+</body>
+</html>

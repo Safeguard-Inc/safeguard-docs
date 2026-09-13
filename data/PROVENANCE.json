@@ -1,0 +1,18 @@
+{
+  "note": "Verbatim copies of policy fixtures from Safeguard-Inc/safeguard-policy, used to hold this site's demo engine to the project's own golden decisions.",
+  "source_repository": "https://github.com/Safeguard-Inc/safeguard-policy",
+  "files": [
+    {
+      "local": "data/combined-policy.json",
+      "upstream": "policies/examples/combined-policy.json"
+    },
+    {
+      "local": "data/institutional-default.json",
+      "upstream": "policies/default/policy.json"
+    },
+    {
+      "local": "data/golden-decisions.json",
+      "upstream": "crates/safeguard-sdk/tests/fixtures/decisions.json"
+    }
+  ]
+}

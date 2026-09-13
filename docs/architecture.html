@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture — Safeguard compliance stack</title>
+<meta name="description" content="How the three Safeguard repositories fit together: versioned seams, the decision engine's precedence, error codes and the fail-closed posture.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2 4 5.5v6c0 5 3.4 9.3 8 10.5 4.6-1.2 8-5.5 8-10.5v-6L12 2Z" stroke="#4ade9b" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="m8.5 12 2.5 2.5 4.5-5" stroke="#4ade9b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Safeguard
+    </a>
+    <nav class="site">
+      <a href="../index.html">Overview</a>
+      <a href="../demo.html">Live demo</a>
+      <a href="architecture.html" aria-current="page">Architecture</a>
+      <a href="contracts.html">Contracts</a>
+      <a href="https://github.com/Safeguard-Inc">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Architecture</p>
+    <h1>Two versioned seams</h1>
+    <p class="lede">
+      The three repositories depend on each other in one direction only. Each
+      seam is versioned and machine-readable, so a change on one side cannot
+      silently break the other.
+    </p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="flow" role="img" aria-label="Data flow across the three repositories">
+  CALLER (token contract, issuer, operator)
+      │
+      │  screened operation: register · deposit · transfer
+      │  transfer_from · merge · withdraw
+      ▼
+┌──────────────────────────────┐
+│  safeguard-hooks  (ENFORCE)  │
+│  compliance-hooks contract   │
+│                              │
+│  cheap local gates first,    │
+│  then one policy call per    │
+│  screened party              │
+└──────────┬───────────────────┘
+           │  is_authorized(account, token) -> bool
+           │  ── SEAM 1: versioned policy interface ──
+           ▼
+┌──────────────────────────────┐
+│  safeguard-policy (DEFINE)   │
+│  policy contract + engine    │
+│                              │
+│  account status (structural) │
+│  allowlist → denylist →      │
+│  sanctions → jurisdiction    │
+└──────────┬───────────────────┘
+           │  compliance events (policy_created,
+           │  rule_registered, policy_activated,
+           │  token_bound, AdminSet, …)
+           │  ── SEAM 2: versioned compliance events ──
+           ▼
+┌──────────────────────────────┐
+│  safeguard-audit  (VERIFY)   │
+│  ingest → normalize → index  │
+│  → integrity chain → report  │
+└──────────────────────────────┘
+    </div>
+
+    <h2>The decision engine</h2>
+    <p>
+      Every evaluation resolves to exactly one of <code>APPROVE</code>,
+      <code>BLOCK</code> or <code>FLAG</code>. The checks run in a fixed,
+      documented order and the first decisive outcome wins — later checks never
+      run.
+    </p>
+    <table>
+      <thead><tr><th>Order</th><th>Gate</th><th>Decisive when</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Account status <em>(structural)</em></td><td>frozen or suspended → <span class="pill BLOCK">BLOCK</span>; restricted or unknown → <span class="pill FLAG">FLAG</span></td></tr>
+        <tr><td>2</td><td>Allowlist</td><td>required but not a member</td></tr>
+        <tr><td>3</td><td>Denylist</td><td>subject is listed</td></tr>
+        <tr><td>4</td><td>Sanctions</td><td>screening produced a match</td></tr>
+        <tr><td>5</td><td>Jurisdiction</td><td>region is restricted, prohibited or unknown</td></tr>
+        <tr><td>6</td><td>otherwise</td><td><span class="pill APPROVE">APPROVE</span> with <code>no_reason</code></td></tr>
+      </tbody>
+    </table>
+    <p class="note">
+      Account status is structural because the semantics are uniform: a frozen
+      account is blocked regardless of how a policy is worded. That is why a
+      structural outcome carries no rule id.
+    </p>
+
+    <h2>Fail-closed posture</h2>
+    <p>Missing information never silently approves.</p>
+    <table>
+      <thead><tr><th>Situation</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Unknown account status</td><td><span class="pill FLAG">FLAG</span> <code>account_status_unknown</code></td></tr>
+        <tr><td>Unknown jurisdiction</td><td>the rule's action — <span class="pill BLOCK">BLOCK</span> under a blocking rule</td></tr>
+        <tr><td>Token not bound to an active policy</td><td>evaluation refused / <code>is_authorized</code> answers <code>false</code></td></tr>
+        <tr><td>Policy contract unreachable</td><td><span class="pill BLOCK">denied</span> (<code>policy_unavailable</code>)</td></tr>
+        <tr><td>Unknown status or region code sent by a caller</td><td>maps to the <code>Unknown</code> variant, so junk input flags rather than widening outcomes</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Error codes are assign-only</h2>
+    <p>
+      Reason codes and contract error codes are public API. They are quoted in
+      stored records, in reverted transactions and in incident reports, so
+      they are never renumbered and never reused. A removed variant keeps its
+      number in a retired list rather than freeing it for a new meaning.
+    </p>
+    <table>
+      <thead><tr><th>Code</th><th>Layer</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>2</code></td><td>hooks contract</td><td><code>UnboundToken</code> — the token is not bound to this contract</td></tr>
+        <tr><td><code>3</code></td><td>hooks contract</td><td><code>PolicyDenied</code> — the configured policy denied an account</td></tr>
+        <tr><td><code>4</code></td><td>hooks contract</td><td><code>AccountFrozen</code> — an account holding funds is frozen</td></tr>
+        <tr><td><code>5</code></td><td>hooks contract</td><td><code>SpenderNotAuthorized</code> — the spender of a delegated flow is denied</td></tr>
+        <tr><td><code>8</code></td><td>hooks contract</td><td><code>SacAuthorizationFailed</code> — the underlying SAC check failed</td></tr>
+        <tr><td><code>9</code></td><td>hooks contract</td><td><code>InvalidConfiguration</code> — configuration invalid or absent</td></tr>
+        <tr><td><code>10</code></td><td>hooks contract</td><td><code>PolicyUnavailable</code> — the policy contract could not be reached</td></tr>
+        <tr><td><code>12</code></td><td>hooks contract</td><td><code>AlreadyInitialized</code> — <code>initialize</code> called twice</td></tr>
+        <tr><td><code>1000+</code></td><td>audit library</td><td>the audit taxonomy, registered in <code>errors/catalog.json</code> and gated in CI</td></tr>
+      </tbody>
+    </table>
+    <p class="note">
+      The hook codes are non-dense by design: removed codes are never reissued,
+      so a number observed in the field never shifts meaning. The full audit
+      table is generated from source and checked on every CI run.
+    </p>
+
+    <h2>Where to go deeper</h2>
+    <div class="grid cols-2">
+      <div class="card">
+        <h3><a href="https://github.com/Safeguard-Inc/safeguard-policy/tree/main/docs">safeguard-policy/docs</a></h3>
+        <p>Policy model, rule engine, contract interface, registries, versioning, gas measurements.</p>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/Safeguard-Inc/safeguard-hooks/tree/main/docs">safeguard-hooks/docs</a></h3>
+        <p>Enforcement model, hook lifecycle, freezing, SAC passthrough, threat model, performance.</p>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/Safeguard-Inc/safeguard-audit/tree/main/docs">safeguard-audit/docs</a></h3>
+        <p>Audit model, integrity, event ingestion, investigation, evidence, privacy, reporting.</p>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/Safeguard-Inc/safeguard-docs/blob/main/docs/error-codes.md">Error code reference</a></h3>
+        <p>The consolidated error-code registry across all three layers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>
+      Safeguard Inc. — compliance infrastructure for Stellar Confidential Tokens.
+      Licensed under Apache-2.0.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

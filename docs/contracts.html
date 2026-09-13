@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live deployment — Safeguard on Stellar Testnet</title>
+<meta name="description" content="Verified Stellar Testnet contract addresses for the Safeguard compliance stack: policy, hooks, admin keys and bound tokens.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="../index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2 4 5.5v6c0 5 3.4 9.3 8 10.5 4.6-1.2 8-5.5 8-10.5v-6L12 2Z" stroke="#4ade9b" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="m8.5 12 2.5 2.5 4.5-5" stroke="#4ade9b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Safeguard
+    </a>
+    <nav class="site">
+      <a href="../index.html">Overview</a>
+      <a href="../demo.html">Live demo</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="contracts.html" aria-current="page">Contracts</a>
+      <a href="https://github.com/Safeguard-Inc">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Stellar Testnet</p>
+    <h1>Live deployment record</h1>
+    <p class="lede">
+      Deployed and verified end-to-end. Every identifier on this page was read
+      back from the network after deployment rather than transcribed from a
+      plan.
+    </p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>Network</h2>
+    <table>
+      <tbody>
+        <tr><td><strong>Network</strong></td><td><code>Test SDF Network ; September 2015</code></td></tr>
+        <tr><td><strong>RPC</strong></td><td><code>https://soroban-testnet.stellar.org</code></td></tr>
+        <tr><td><strong>Admin public key</strong></td><td><code>GC2U3YSOCCLOHKADJ4INRHJDFVDMGZX3WWTPH7V62MQWETUD4LR4HDCA</code></td></tr>
+        <tr><td><strong>Admin secret</strong></td><td>never stored in a repository — read from <code>SAFEGUARD_ADMIN_SK</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2>Contracts</h2>
+    <table>
+      <thead>
+        <tr><th>Layer</th><th>Repository</th><th>Contract id</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>DEFINE</td>
+          <td><a href="https://github.com/Safeguard-Inc/safeguard-policy">safeguard-policy</a></td>
+          <td><code>CDVME6OPYZO6RAIWRFKLI3ACZHPNZK7GDBIX7YSIER3QLA2SO47QX5IB</code></td>
+        </tr>
+        <tr>
+          <td>ENFORCE</td>
+          <td><a href="https://github.com/Safeguard-Inc/safeguard-hooks">safeguard-hooks</a></td>
+          <td><code>CC7UKMCY3J7LB2WGU6D3MPRSSK3RKEC6MEXJJKOXRPTZAPRNXKPVPKPN</code></td>
+        </tr>
+        <tr>
+          <td>VERIFY</td>
+          <td><a href="https://github.com/Safeguard-Inc/safeguard-audit">safeguard-audit</a></td>
+          <td>off-chain — consumes the events the two contracts above emit</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Policy state</h2>
+    <table>
+      <thead><tr><th>Policy</th><th>Version</th><th>Status</th><th>Config hash</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>institutional-default</code></td>
+          <td>1</td>
+          <td><span class="pill APPROVE">active</span></td>
+          <td class="mono" style="font-size:0.78rem">e13b61ec…479ec9e0</td>
+        </tr>
+        <tr>
+          <td><code>enforcement-default</code></td>
+          <td>1</td>
+          <td><span class="pill FLAG">not registered</span></td>
+          <td class="mono" style="font-size:0.78rem">—</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">
+      Only <code>institutional-default</code> was loaded on this contract id.
+      The record states that plainly rather than listing a policy the contract
+      does not have — a deployment record that overstates its own contents is
+      worse than one that admits a gap.
+    </p>
+
+    <h2>Enforcement state</h2>
+    <table>
+      <tbody>
+        <tr><td><strong>Initialized</strong></td><td><span class="pill APPROVE">true</span></td></tr>
+        <tr><td><strong>Config version</strong></td><td><code>1</code></td></tr>
+        <tr><td><strong>Policy gate</strong></td><td><code>CDVME6OPYZO6RAIWRFKLI3ACZHPNZK7GDBIX7YSIER3QLA2SO47QX5IB</code></td></tr>
+        <tr><td><strong>SAC passthrough</strong></td><td><code>false</code></td></tr>
+        <tr><td><strong>Bound token</strong></td><td><code>GC2O7PSLQXL24R7EECSMZC7YD5IB7QP5COX2FHC52SVKREEDSX2WWPWV</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2>What was verified</h2>
+    <ul style="color:var(--fg-muted)">
+      <li><code>schema_version</code> returns <code>1</code> on the policy contract.</li>
+      <li><code>admin</code> returns the configured admin public key.</li>
+      <li>
+        <code>is_authorized(account, token)</code> answers <code>false</code>
+        for a token that is not bound to an active policy — the fail-closed
+        posture, observed rather than assumed.
+      </li>
+      <li>
+        <code>register_version</code>, <code>activate_version</code> and
+        <code>bind_token</code> each succeeded against the ledger and emitted
+        their events (<code>policy_created</code>, <code>rule_registered</code>,
+        <code>policy_activated</code>, <code>token_bound</code>).
+      </li>
+      <li>
+        The hooks contract was initialized, configured against the policy
+        contract above, and had its token bound.
+      </li>
+      <li>
+        Freeze and unfreeze were exercised for real on the bound token and both
+        succeeded against the ledger.
+      </li>
+    </ul>
+
+    <h2>Reproduce it</h2>
+    <pre><code># Policy contract — deploy, initialize, register and activate the default policy
+git clone https://github.com/Safeguard-Inc/safeguard-policy
+cd safeguard-policy
+stellar keys generate safeguard-admin --network testnet --fund
+STELLAR_ADMIN=safeguard-admin bash scripts/deploy-testnet.sh --load-policy
+
+# Hooks contract — deploy, initialize, configure against the policy, bind a token
+git clone https://github.com/Safeguard-Inc/safeguard-hooks
+cd safeguard-hooks
+safeguard-hooks --config deployments/testnet/configuration.json --source safeguard-admin \
+  deploy --hooks-wasm target/wasm32v1-none/release/compliance_hooks.wasm \
+         --policy-id &lt;policy-contract-id&gt; --save</code></pre>
+
+    <p class="note">
+      Confidential Tokens on Stellar are a developer preview. Treat this
+      deployment as a rehearsal rather than production.
+    </p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>
+      Safeguard Inc. — compliance infrastructure for Stellar Confidential Tokens.
+      Licensed under Apache-2.0.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
