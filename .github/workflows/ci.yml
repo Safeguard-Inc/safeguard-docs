@@ -116,6 +116,48 @@ jobs:
           print(f"vercel.json ok; {len(headers)} header keys configured")
           PY
 
+      # The pitch video is the project's primary presentation, so its assets
+      # are release artifacts rather than decoration. The caption track in
+      # particular fails silently in a browser when it is SRT wearing a
+      # WebVTT hat, which is exactly the kind of breakage a build gate should
+      # catch instead of a reviewer.
+      - name: Published video assets are present and well-formed
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, sys
+
+          video = pathlib.Path("assets/video")
+          problems = []
+          mp4 = video / "safeguard-pitch.mp4"
+          if not mp4.exists() or mp4.stat().st_size < 1_000_000:
+              problems.append("safeguard-pitch.mp4 is missing or implausibly small")
+          elif mp4.stat().st_size > 95 * 1024 * 1024:
+              problems.append("safeguard-pitch.mp4 is larger than GitHub will accept")
+
+          poster = video / "safeguard-pitch-poster.jpg"
+          if not poster.exists() or poster.stat().st_size < 5_000:
+              problems.append("the README embeds safeguard-pitch-poster.jpg, and it is missing")
+
+          vtt = video / "safeguard-pitch.vtt"
+          if not vtt.exists():
+              problems.append("the WebVTT caption track is missing")
+          else:
+              text = vtt.read_text(encoding="utf-8")
+              if not text.startswith("WEBVTT"):
+                  problems.append("the caption track does not begin with WEBVTT")
+              if re.search(r"^\d\d:\d\d:\d\d,", text, re.M):
+                  problems.append("the caption track uses SRT comma timestamps, which browsers ignore")
+              cues = len(re.findall(r"^\d\d:\d\d:\d\d\.\d\d\d --> ", text, re.M))
+              if cues < 10:
+                  problems.append(f"the caption track has only {cues} cues")
+
+          if problems:
+              for problem in problems:
+                  print(f"FAIL {problem}", file=sys.stderr)
+              sys.exit(1)
+          print(f"video assets ok: {mp4.stat().st_size / 1048576:.1f} MB, {cues} cues")
+          PY
+
       - name: Every page is well-formed enough to serve
         run: |
           python3 - <<'PY'

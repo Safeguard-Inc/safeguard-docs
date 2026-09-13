@@ -1,0 +1,45 @@
+WEBVTT
+
+1
+00:00:00.280 --> 00:00:04.528
+Safeguard. Compliant privacy for Stellar confidential tokens.
+
+2
+00:00:04.613 --> 00:00:36.941
+Every bank, fund and fintech on the planet is being asked the same question. Can you move money onto a public blockchain without publishing your clients' balances? Confidential tokens on Stellar finally answer yes. Transactions are encrypted, amounts are hidden, participants are verified. But privacy creates a new problem, and it is the one that actually kills deals. If nobody can see the transfer, how does anyone prove it was allowed? Regulators do not accept trust us. And compliance cannot be a screenshot.
+
+3
+00:00:37.047 --> 00:01:01.407
+Most compliance tooling answers this with a report. A dashboard. Something a human reads after the fact. That is the wrong shape entirely. A confidential operation needs a decision at the moment it happens, inside the transaction, before a single unit moves. And if that decision cannot be made, the operation must not proceed. Not flagged. Not logged. Not proceed.
+
+4
+00:01:01.513 --> 00:01:29.833
+Safeguard is that decision layer, split across three responsibilities. Define. An on-chain policy engine that says who may transact. Enforce. A compliance-hooks contract that every confidential operation passes through. Prove. An audit layer that turns ledger events into evidence you can defend. Alongside them, a documentation hub that runs the real engine in your browser, so a reviewer can see the decision rather than read about it.
+
+5
+00:01:29.947 --> 00:02:02.707
+The flow is deliberately one way. A confidential token calls the hooks contract before every register, deposit, transfer, withdrawal and merge. Hooks checks its own state first. Is this token even in scope? Then it asks the policy contract exactly one question. Is this party authorized? One call, one boolean. Everything complicated, sanctions lists, jurisdiction rules, identity registries, policy versions, lives in Define, where it belongs, and never reaches the enforcement layer.
+
+6
+00:02:02.813 --> 00:02:34.181
+Here is the property that makes the rest auditable. There is no unknown state. An unbound token is rejected with error two. A frozen account, error four. An unreachable policy, error ten. Every denial is a typed code with a documented meaning, and codes are never reused, so a code recorded in an incident still means the same thing a year later. If the enforcement layer cannot reach a decision, it refuses. It would rather revert a legitimate transfer than let a blocked one through.
+
+7
+00:02:34.280 --> 00:03:11.384
+This part is live, not a mock-up. The documentation hub hosts the same decision engine the contract runs, in JavaScript, in your browser. Choose a subject's status, its jurisdiction, its sanctions exposure, and watch the engine decide. A compliant subject is approved. A frozen account is blocked. A sanctions match is flagged for review, with the rule that flagged it attributed in the decision. And this mirror is tested. Twenty-four browser cases reproduce the exact decisions the policy repository recorded, so the documentation cannot drift from the engine it describes.
+
+8
+00:03:11.480 --> 00:03:51.080
+And a decision is only worth as much as your ability to show it later. That is the third repository. Ledger events are pulled and decoded through a verified wire model. They are normalized into one canonical shape, keyed on an identity derived from the source, so replaying the same ledger twice cannot double-count, and a reorg has defined behaviour rather than a guess. Each record carries a canonical digest, so tampering is detected by recomputation. Every field is classifiable, and protected values are replaced wholesale rather than partially masked. The result is evidence you can hand to an auditor who was not there.
+
+9
+00:03:51.180 --> 00:04:23.556
+None of this is theoretical. Both contracts are deployed on Stellar Testnet and were verified against the live ledger. The policy gate answering, and the hooks contract refusing an unbound token with error two. One command re-checks an entire deployment without needing a secret key, including a deliberate probe that proves the contract still fails closed. Eight hundred and five tests across the stack. And enforcement adds roughly a tenth to the cost of an operation, about a thousandth of an XLM for a compliant deposit.
+
+10
+00:04:23.647 --> 00:04:50.119
+The whole stack is open source under one organisation, and it is built to be contributed to. Five public repositories, continuous integration on every one of them, a machine-checked error catalog, issue templates, and a backlog of fifty-seven genuinely technical issues, not cosmetic ones. Gas benchmarks, coverage floors, and a pinned toolchain so the numbers published in the documentation actually reproduce.
+
+11
+00:04:50.213 --> 00:05:14.021
+Privacy and compliance are usually presented as a trade-off. Safeguard removes it. Confidential by default, compliant by construction, and provable after the fact. The contracts are live on Testnet today, the three layers are wired together on the real ledger, and the next step is mainnet readiness through the open issue backlog. The repositories are open now. Come and build on it.

@@ -1,0 +1,328 @@
+{
+  "video": {
+    "title": "Safeguard — compliant privacy for Stellar confidential tokens",
+    "subtitle": "Pitch",
+    "voice": "en-US-AndrewNeural",
+    "rate": "-3%",
+    "pitch": "-1Hz",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "tail": 0.7,
+    "crossfade": 0.6
+  },
+  "captures": {
+    "docs-home": {
+      "url": "https://safeguard-docs.vercel.app/",
+      "wait": 1500,
+      "height": 1080
+    },
+    "docs-demo": {
+      "url": "https://safeguard-docs.vercel.app/demo",
+      "wait": 1500,
+      "height": 1080,
+      "actions": [
+        { "click": "#preset-frozen" }
+      ]
+    },
+    "docs-demo-sanctions": {
+      "url": "https://safeguard-docs.vercel.app/demo",
+      "wait": 1500,
+      "height": 1080,
+      "actions": [
+        { "click": "#preset-sanctions" }
+      ]
+    },
+    "docs-architecture": {
+      "url": "https://safeguard-docs.vercel.app/docs/architecture",
+      "wait": 1500,
+      "height": 1080
+    },
+    "docs-contracts": {
+      "url": "https://safeguard-docs.vercel.app/docs/contracts",
+      "wait": 1500,
+      "height": 1080
+    },
+    "org": {
+      "url": "https://github.com/orgs/Safeguard-Inc/repositories",
+      "wait": 2500,
+      "height": 1080
+    },
+    "repo-hooks": {
+      "url": "https://github.com/Safeguard-Inc/safeguard-hooks",
+      "wait": 2500,
+      "height": 1080
+    },
+    "issues": {
+      "url": "https://github.com/Safeguard-Inc/safeguard-audit/issues",
+      "wait": 2500,
+      "height": 1080
+    },
+    "repo-audit": {
+      "url": "https://github.com/Safeguard-Inc/safeguard-audit",
+      "wait": 2500,
+      "height": 1080
+    }
+  },
+  "slides": {
+    "title": {
+      "type": "title",
+      "kicker": "Safeguard",
+      "headline": "Compliant privacy for\nStellar confidential tokens",
+      "sub": "Confidential by default. Compliant by construction. Provable after the fact.",
+      "badges": [
+        "Live on Stellar Testnet",
+        "5 public repositories",
+        "800+ tests"
+      ]
+    },
+    "problem": {
+      "type": "statement",
+      "kicker": "The problem",
+      "headline": "Confidential tokens hide the transfer.\nThey cannot hide the question.",
+      "sub": "Stellar confidential tokens encrypt amounts and participants — which is exactly what makes them usable by regulated institutions, and exactly what makes \"prove it was allowed\" hard.",
+      "stats": [
+        ["Encrypted", "amounts and participants"],
+        ["Invisible", "to a compliance officer"],
+        ["Unprovable", "after the fact"]
+      ]
+    },
+    "gap": {
+      "type": "statement",
+      "kicker": "Why reports don't work",
+      "headline": "A dashboard read tomorrow\ncannot stop a transfer today.",
+      "sub": "Confidential operations need a decision inside the transaction, before a single unit moves. And when that decision cannot be made, the operation must not proceed — not flagged, not logged. Not proceed.",
+      "stats": [
+        ["After the fact", "a report"],
+        ["In the transaction", "a decision"]
+      ]
+    },
+    "solution": {
+      "type": "layers",
+      "kicker": "What Safeguard is",
+      "headline": "Three responsibilities.\nOne decision path.",
+      "cards": [
+        {
+          "label": "DEFINE",
+          "title": "safeguard-policy",
+          "body": "An on-chain policy engine that answers one question: is this party authorized? Sanctions, jurisdiction, identity, versions."
+        },
+        {
+          "label": "ENFORCE",
+          "title": "safeguard-hooks",
+          "body": "A fail-closed compliance-hooks contract every confidential operation passes through. Holds no balances. Never sees the rules."
+        },
+        {
+          "label": "PROVE",
+          "title": "safeguard-audit",
+          "body": "Turns ledger events into evidence: normalized, digest-chained, classified, redactable, independently verifiable."
+        }
+      ]
+    },
+    "architecture": {
+      "type": "flow",
+      "kicker": "Architecture",
+      "headline": "One call, one boolean",
+      "sub": "The enforcement layer gates what it holds — configuration, bindings, freeze flags — and enforces the policy's decision. It never learns how many rules exist, or what they are."
+    },
+    "failclosed": {
+      "type": "code",
+      "kicker": "No unknown state",
+      "headline": "Every denial is a typed code.\nCodes are never reused.",
+      "file": "contracts/compliance-hooks/src/lib.rs",
+      "code": [
+        "pub enum ContractError {",
+        "    UnboundToken = 2,",
+        "    PolicyDenied = 3,",
+        "    AccountFrozen = 4,",
+        "    SpenderNotAuthorized = 5,",
+        "    SacAuthorizationFailed = 8,",
+        "    InvalidConfiguration = 9,",
+        "    PolicyUnavailable = 10,",
+        "    AlreadyInitialized = 12,",
+        "}"
+      ],
+      "notes": [
+        "Non-dense by design: a removed code is never reissued, so a code in a saved incident never changes meaning.",
+        "Cannot reach a decision? Refuse. It would rather revert a legitimate transfer than let a blocked one through.",
+        "158 typed error variants across the stack, all documented and machine-checked."
+      ]
+    },
+    "demo": {
+      "type": "statement",
+      "kicker": "Live deployment",
+      "headline": "The decision engine,\nrunning in your browser",
+      "sub": "The documentation hub hosts the same engine the contract runs — in JavaScript, client-side. And the mirror is tested: 24 browser cases reproduce the exact decisions the policy repository recorded as its golden fixture.",
+      "stats": [
+        ["safeguard-docs.vercel.app", "live"],
+        ["24 / 24", "golden decisions reproduced"],
+        ["0", "network calls to decide"]
+      ]
+    },
+    "evidence": {
+      "type": "steps",
+      "kicker": "Prove",
+      "headline": "An allowed transfer is also\nan auditable claim",
+      "steps": [
+        {
+          "title": "Ingest",
+          "body": "Ledger events are pulled and decoded through a verified wire model, with the raw payload kept alongside the parsed record."
+        },
+        {
+          "title": "Normalize",
+          "body": "One canonical event shapes eighteen kinds, keyed on a source-derived identity — so replay is idempotent and a reorg has defined behaviour."
+        },
+        {
+          "title": "Chain",
+          "body": "Records carry canonical digests; tampering is detected by recomputation, and evidence packages ship with manifests to be verified independently."
+        },
+        {
+          "title": "Redact",
+          "body": "Every field is classifiable, and protected values are replaced wholesale — never partially masked, never leaked into a log."
+        }
+      ],
+      "footnote": "Enforcement decides. Evidence proves the decision happened — after the fact, to someone who was not there."
+    },
+    "proof": {
+      "type": "metrics",
+      "kicker": "Verified, not asserted",
+      "headline": "Live on Testnet — and self-checking",
+      "metrics": [
+        ["9 / 9", "deployment checks pass with no secret key"],
+        [     "849",
+     "tests across all five repositories"],
+        ["92.6%", "line coverage on the audit layer"],
+        ["27,210 B", "enforcement contract, wasm"]
+      ],
+      "footnote": "Enforcement adds roughly a tenth to the cost of an operation — about 0.0011 XLM for a compliant deposit."
+    },
+    "opensource": {
+      "type": "layers",
+      "kicker": "Open source",
+      "headline": "Built to be contributed to,\nnot just demonstrated",
+      "cards": [
+        {
+          "label": "57",
+          "title": "open issues",
+          "body": "Scoped engineering work with acceptance criteria — conformance suites, property tests, fault injection — not cosmetic tasks."
+        },
+        {
+          "label": "CI",
+          "title": "every repository",
+          "body": "Format, lint, tests, wasm builds, schema gates, coverage floors, gas benchmarks and a pinned toolchain so published numbers reproduce."
+        },
+        {
+          "label": "DOCS",
+          "title": "documentation hub",
+          "body": "Architecture, contracts, a machine-checked error catalog, and a runnable engine — reviewed the way code is reviewed."
+        }
+      ]
+    },
+    "cta": {
+      "type": "cta",
+      "kicker": "Conclusion",
+      "headline": "Privacy and compliance\nare not a trade-off",
+      "sub": "Confidential by default, compliant by construction, provable after the fact. Contracts are live on Testnet today; the repositories are open now.",
+      "links": [
+        "github.com/Safeguard-Inc",
+        "safeguard-docs.vercel.app"
+      ]
+    }
+  },
+  "scenes": [
+    {
+      "id": "00-title",
+      "chapter": "Safeguard",
+      "narration": "Safeguard. Compliant privacy for Stellar confidential tokens.",
+      "frames": [{ "asset": "slide:title", "weight": 1.0, "motion": "in" }]
+    },
+    {
+      "id": "01-problem",
+      "chapter": "The problem",
+      "narration": "Every bank, fund and fintech on the planet is being asked the same question. Can you move money onto a public blockchain without publishing your clients' balances? Confidential tokens on Stellar finally answer yes. Transactions are encrypted, amounts are hidden, participants are verified. But privacy creates a new problem, and it is the one that actually kills deals. If nobody can see the transfer, how does anyone prove it was allowed? Regulators do not accept trust us. And compliance cannot be a screenshot.",
+      "frames": [
+        { "asset": "slide:problem", "weight": 1.0, "motion": "in" }
+      ]
+    },
+    {
+      "id": "02-gap",
+      "chapter": "Why reports don't work",
+      "narration": "Most compliance tooling answers this with a report. A dashboard. Something a human reads after the fact. That is the wrong shape entirely. A confidential operation needs a decision at the moment it happens, inside the transaction, before a single unit moves. And if that decision cannot be made, the operation must not proceed. Not flagged. Not logged. Not proceed.",
+      "frames": [
+        { "asset": "slide:gap", "weight": 1.0, "motion": "in" }
+      ]
+    },
+    {
+      "id": "03-solution",
+      "chapter": "What Safeguard is",
+      "narration": "Safeguard is that decision layer, split across three responsibilities. Define. An on-chain policy engine that says who may transact. Enforce. A compliance-hooks contract that every confidential operation passes through. Prove. An audit layer that turns ledger events into evidence you can defend. Alongside them, a documentation hub that runs the real engine in your browser, so a reviewer can see the decision rather than read about it.",
+      "frames": [
+        { "asset": "slide:solution", "weight": 0.72, "motion": "in" },
+        { "asset": "capture:org", "weight": 0.28, "motion": "in" }
+      ]
+    },
+    {
+      "id": "04-architecture",
+      "chapter": "Architecture",
+      "narration": "The flow is deliberately one way. A confidential token calls the hooks contract before every register, deposit, transfer, withdrawal and merge. Hooks checks its own state first. Is this token even in scope? Then it asks the policy contract exactly one question. Is this party authorized? One call, one boolean. Everything complicated, sanctions lists, jurisdiction rules, identity registries, policy versions, lives in Define, where it belongs, and never reaches the enforcement layer.",
+      "frames": [
+        { "asset": "slide:architecture", "weight": 0.68, "motion": "in" },
+        { "asset": "capture:docs-architecture", "weight": 0.32, "motion": "in" }
+      ]
+    },
+    {
+      "id": "05-failclosed",
+      "chapter": "No unknown state",
+      "narration": "Here is the property that makes the rest auditable. There is no unknown state. An unbound token is rejected with error two. A frozen account, error four. An unreachable policy, error ten. Every denial is a typed code with a documented meaning, and codes are never reused, so a code recorded in an incident still means the same thing a year later. If the enforcement layer cannot reach a decision, it refuses. It would rather revert a legitimate transfer than let a blocked one through.",
+      "frames": [
+        { "asset": "slide:failclosed", "weight": 0.6, "motion": "in" },
+        { "asset": "capture:docs-contracts", "weight": 0.4, "motion": "in" }
+      ]
+    },
+    {
+      "id": "06-demo",
+      "chapter": "Live deployment",
+      "narration": "This part is live, not a mock-up. The documentation hub hosts the same decision engine the contract runs, in JavaScript, in your browser. Choose a subject's status, its jurisdiction, its sanctions exposure, and watch the engine decide. A compliant subject is approved. A frozen account is blocked. A sanctions match is flagged for review, with the rule that flagged it attributed in the decision. And this mirror is tested. Twenty-four browser cases reproduce the exact decisions the policy repository recorded, so the documentation cannot drift from the engine it describes.",
+      "frames": [
+        { "asset": "capture:docs-home", "weight": 0.3, "motion": "in" },
+        { "asset": "capture:docs-demo", "weight": 0.4, "motion": "in" },
+        { "asset": "capture:docs-demo-sanctions", "weight": 0.3, "motion": "in" }
+      ]
+    },
+    {
+      "id": "07-evidence",
+      "chapter": "Prove",
+      "narration": "And a decision is only worth as much as your ability to show it later. That is the third repository. Ledger events are pulled and decoded through a verified wire model. They are normalized into one canonical shape, keyed on an identity derived from the source, so replaying the same ledger twice cannot double-count, and a reorg has defined behaviour rather than a guess. Each record carries a canonical digest, so tampering is detected by recomputation. Every field is classifiable, and protected values are replaced wholesale rather than partially masked. The result is evidence you can hand to an auditor who was not there.",
+      "frames": [
+        { "asset": "slide:evidence", "weight": 0.62, "motion": "in" },
+        { "asset": "capture:repo-audit", "weight": 0.38, "motion": "in" }
+      ]
+    },
+    {
+      "id": "08-proof",
+      "chapter": "Verified, not asserted",
+      "narration": "None of this is theoretical. Both contracts are deployed on Stellar Testnet and were verified against the live ledger. The policy gate answering, and the hooks contract refusing an unbound token with error two. One command re-checks an entire deployment without needing a secret key, including a deliberate probe that proves the contract still fails closed. Eight hundred and five tests across the stack. And enforcement adds roughly a tenth to the cost of an operation, about a thousandth of an XLM for a compliant deposit.",
+      "frames": [
+        { "asset": "capture:repo-hooks", "weight": 0.34, "motion": "in" },
+        { "asset": "slide:proof", "weight": 0.66, "motion": "in" }
+      ]
+    },
+    {
+      "id": "09-opensource",
+      "chapter": "Open source",
+      "narration": "The whole stack is open source under one organisation, and it is built to be contributed to. Five public repositories, continuous integration on every one of them, a machine-checked error catalog, issue templates, and a backlog of fifty-seven genuinely technical issues, not cosmetic ones. Gas benchmarks, coverage floors, and a pinned toolchain so the numbers published in the documentation actually reproduce.",
+      "frames": [
+        { "asset": "capture:issues", "weight": 0.34, "motion": "in" },
+        { "asset": "slide:opensource", "weight": 0.66, "motion": "in" }
+      ]
+    },
+    {
+      "id": "10-cta",
+      "chapter": "Conclusion",
+      "narration": "Privacy and compliance are usually presented as a trade-off. Safeguard removes it. Confidential by default, compliant by construction, and provable after the fact. The contracts are live on Testnet today, the three layers are wired together on the real ledger, and the next step is mainnet readiness through the open issue backlog. The repositories are open now. Come and build on it.",
+      "frames": [
+        { "asset": "slide:cta", "weight": 1.0, "motion": "out" }
+      ]
+    }
+  ]
+}

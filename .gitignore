@@ -6,3 +6,14 @@ npm-debug.log*
 # OS noise
 .DS_Store
 Thumbs.db
+
+# Pitch-video build products: slides, live captures, per-scene audio, frame
+# clips and the intermediate edit. All of it is reproducible from
+# `video/scenes.json` with `npm run video`, so none of it belongs in git. The
+# published file (assets/video/safeguard-pitch.mp4) IS tracked — it is the
+# thing the READMEs link to and the Vercel deployment serves.
+video/assets/
+
+# Python bytecode from the narration and render steps.
+__pycache__/
+*.pyc

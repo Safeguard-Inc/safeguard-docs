@@ -2,9 +2,27 @@
 
 [![CI](https://github.com/Safeguard-Inc/safeguard-docs/actions/workflows/ci.yml/badge.svg)](https://github.com/Safeguard-Inc/safeguard-docs/actions/workflows/ci.yml)
 [![Deployment](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsafeguard-docs.vercel.app%2Fdata%2Fdeployment.json&query=%24.status&label=Vercel&color=4ade9b)](https://safeguard-docs.vercel.app)
+[![Pitch video](https://img.shields.io/badge/pitch_video-5_minutes-4ade9b)](https://safeguard-docs.vercel.app/assets/video/safeguard-pitch.mp4)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 **DOCUMENTATION HUB for the Safeguard compliance stack on Stellar Confidential Tokens.**
+
+## Pitch video
+
+[![Watch the five-minute pitch](assets/video/safeguard-pitch-poster.jpg)](https://safeguard-docs.vercel.app/assets/video/safeguard-pitch.mp4)
+
+**Five minutes, end to end:** the problem, the three-layer architecture, the
+live decision engine driven in a browser, and the contracts running on
+Testnet — with the real contract ids, the read-only deployment verification,
+and the measured cost of an operation.
+
+The video is *built from this repository* rather than edited by hand. The
+slides, the captures (photographed from this deployment as it runs), the
+voice-over and the edit are all produced by [`video/`](video/), so the video
+cannot drift away from what the project does — if the site regresses, a
+rebuild regresses with it. Rebuild with `npm run video`; the pipeline,
+including how each claim is verified, is documented in
+[`video/README.md`](video/README.md).
 
 This is the fourth repository in the stack. It is not a library and not a
 contract: it is the place a reader, an integrator or a reviewer lands first,

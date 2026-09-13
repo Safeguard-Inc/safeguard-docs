@@ -172,6 +172,20 @@ td code { white-space: nowrap; }
   white-space: pre;
 }
 
+/* The pitch video. Framed like the other inset panels so it reads as part of
+   the page rather than an embedded player dropped on top of it. */
+.pitch {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  margin-top: 1.5rem;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.9);
+}
+
 .btns { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
 .btn {
   display: inline-block;

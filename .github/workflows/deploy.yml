@@ -83,7 +83,10 @@ jobs:
             "/data/deployment.json" \
             "/data/combined-policy.json" \
             "/data/golden-decisions.json" \
-            "/assets/favicon.svg"
+            "/assets/favicon.svg" \
+            "/assets/video/safeguard-pitch.mp4" \
+            "/assets/video/safeguard-pitch-poster.jpg" \
+            "/assets/video/safeguard-pitch.vtt"
           do
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${PRODUCTION_URL}${path}")
             printf '%-34s %s\n' "${path}" "${code}"
