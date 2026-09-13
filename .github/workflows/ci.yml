@@ -15,18 +15,33 @@ permissions:
   contents: read
 
 jobs:
-  workflow-lint:
-    name: workflow files (actionlint)
+  checks:
+    name: workflow lint · engine parity · links
+    # A single job, deliberately.
+    #
+    # Splitting the workflow-lint gate into its own job made GitHub unable to
+    # resolve `actions/checkout` in the second job -- "unable to find version"
+    # for a full SHA that the first job downloaded successfully seconds
+    # earlier, in the same run, from the same repository. The two jobs were
+    # byte-identical up to the download; it reproduced across a re-run, after
+    # serializing the jobs, and on both `ubuntu-latest` and an explicit
+    # `ubuntu-24.04` label.
+    #
+    # Keeping it one job removes the problem rather than papering over it, and
+    # the gate still runs first, which is the property that matters: a
+    # workflow file GitHub rejects at validation time surfaces as a zero-job
+    # failure that YAML parsers silently tolerate, so it must be checked before
+    # the work that the file describes.
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # Validate every workflow with actionlint before anything else runs.
-      # The fetch and the checksum check are retried as one atomic unit: a CDN
-      # that answers 200 with a truncated body is discarded and refetched
-      # rather than failing the gate, while the pinned digest stays the only
-      # artifact the job will accept.
+      # Validate every workflow with actionlint before anything else runs. The
+      # fetch and the checksum check are retried as one atomic unit: a CDN that
+      # answers 200 with a truncated body is discarded and refetched rather
+      # than failing the gate, while the pinned digest stays the only artifact
+      # the job will accept.
       - name: Lint workflow files (pinned actionlint, checksum-verified)
         run: |
           ACTIONLINT_SHA256="8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
@@ -53,24 +68,12 @@ jobs:
           tar xzf /tmp/actionlint.tar.gz -C /tmp/actionlint
           /tmp/actionlint/actionlint -color
 
-  checks:
-    name: engine parity · links · build
-    # The toolchain setup actions are deliberately not used. This job needs
-    # only a recent Node and a Python 3, both of which the image already
-    # carries, so every action avoided is a third-party repository that no
-    # longer sits in this job's supply chain. The versions are asserted below,
-    # so a runner image change is a loud failure rather than a silent
-    # behavioural difference.
-    runs-on: ubuntu-latest
-    # Run the workflow lint before anything else, which is what the gate is
-    # for: a workflow file GitHub rejects at validation time surfaces as a
-    # zero-job failure that YAML parsers silently tolerate, so it must be the
-    # first thing that runs.
-    needs: workflow-lint
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273da90b1 # v7.0.1
-
+      # The toolchain setup actions are deliberately not used. This job needs
+      # only a recent Node and a Python 3, both of which the image already
+      # carries, so every action avoided is a third-party repository that no
+      # longer sits in this job's supply chain. The versions are asserted, so a
+      # runner image change is a loud failure rather than a silent behavioural
+      # difference.
       - name: Assert the runner toolchains are new enough
         run: |
           set -euo pipefail
@@ -83,9 +86,9 @@ jobs:
       - name: Engine parity with the upstream golden fixture
         run: npm test
 
-      # A documentation hub whose links 404 is a documentation hub nobody
-      # reads to the end. Also fails the build if secret material reaches a
-      # page that will be published.
+      # A documentation hub whose links 404 is a documentation hub nobody reads
+      # to the end. Also fails the build if secret material reaches a page that
+      # will be published.
       - name: Local references and published secrets
         run: python3 scripts/check-links.py
 
