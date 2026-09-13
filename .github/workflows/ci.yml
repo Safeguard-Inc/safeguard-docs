@@ -75,10 +75,8 @@ jobs:
       - name: Assert the runner toolchains are new enough
         run: |
           set -euo pipefail
-          node -e 'const [major] = process.versions.node.split(".").map(Number);
-            if (major < 20) { console.error(`node ${process.versions.node} is too old: the test runner needs >= 20`); process.exit(1); }
-            console.log(`node ${process.versions.node}`)'
-          python3 -c 'import sys; print(f"python {sys.version.split()[0]}"); sys.exit(0 if sys.version_info >= (3, 10) else 1)'
+          node -e "const [major] = process.versions.node.split('.').map(Number); if (major < 20) { console.error('node ' + process.versions.node + ' is too old: the test runner needs >= 20'); process.exit(1); } console.log('node ' + process.versions.node)"
+          python3 -c "import sys; print('python ' + sys.version.split()[0]); sys.exit(0 if sys.version_info >= (3, 10) else 1)"
 
       # The reference engine on the site is only trustworthy if it produces
       # exactly the decisions the upstream project recorded. This is the gate
