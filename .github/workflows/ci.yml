@@ -56,6 +56,12 @@ jobs:
   checks:
     name: engine parity · links · build
     runs-on: ubuntu-latest
+    # Run the workflow lint before anything else, which is what the gate is
+    # for: a workflow file GitHub rejects at validation time surfaces as a
+    # zero-job failure that YAML parsers silently tolerate, so it must be the
+    # first thing that runs. Serializing also avoids two jobs in the same run
+    # racing to resolve their actions concurrently.
+    needs: workflow-lint
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273da90b1 # v7.0.1
