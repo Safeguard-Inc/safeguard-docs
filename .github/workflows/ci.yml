@@ -55,30 +55,36 @@ jobs:
 
   checks:
     name: engine parity · links · build
-    runs-on: ubuntu-latest
+    # The runner image is pinned rather than floated to `ubuntu-latest`, and
+    # the toolchain setup actions are deliberately not used. This job needs
+    # only a recent Node and a Python 3, both of which ubuntu-24.04 already
+    # carries; pinning the image makes those versions deterministic, and every
+    # action avoided is a third-party repository that no longer sits in this
+    # job's supply chain. The versions are asserted below, so a runner image
+    # change is a loud failure rather than a silent behavioural difference.
+    runs-on: ubuntu-24.04
     # Run the workflow lint before anything else, which is what the gate is
     # for: a workflow file GitHub rejects at validation time surfaces as a
     # zero-job failure that YAML parsers silently tolerate, so it must be the
-    # first thing that runs. Serializing also avoids two jobs in the same run
-    # racing to resolve their actions concurrently.
+    # first thing that runs.
     needs: workflow-lint
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273da90b1 # v7.0.1
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "24"
+      - name: Assert the runner toolchains are new enough
+        run: |
+          set -euo pipefail
+          node -e 'const [major] = process.versions.node.split(".").map(Number);
+            if (major < 20) { console.error(`node ${process.versions.node} is too old: the test runner needs >= 20`); process.exit(1); }
+            console.log(`node ${process.versions.node}`)'
+          python3 -c 'import sys; print(f"python {sys.version.split()[0]}"); sys.exit(0 if sys.version_info >= (3, 10) else 1)'
 
       # The reference engine on the site is only trustworthy if it produces
       # exactly the decisions the upstream project recorded. This is the gate
       # that stops the documentation from teaching the wrong behaviour.
       - name: Engine parity with the upstream golden fixture
         run: npm test
-
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.12"
 
       # A documentation hub whose links 404 is a documentation hub nobody
       # reads to the end. Also fails the build if secret material reaches a
