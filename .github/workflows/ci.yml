@@ -55,14 +55,13 @@ jobs:
 
   checks:
     name: engine parity · links · build
-    # The runner image is pinned rather than floated to `ubuntu-latest`, and
-    # the toolchain setup actions are deliberately not used. This job needs
-    # only a recent Node and a Python 3, both of which ubuntu-24.04 already
-    # carries; pinning the image makes those versions deterministic, and every
-    # action avoided is a third-party repository that no longer sits in this
-    # job's supply chain. The versions are asserted below, so a runner image
-    # change is a loud failure rather than a silent behavioural difference.
-    runs-on: ubuntu-24.04
+    # The toolchain setup actions are deliberately not used. This job needs
+    # only a recent Node and a Python 3, both of which the image already
+    # carries, so every action avoided is a third-party repository that no
+    # longer sits in this job's supply chain. The versions are asserted below,
+    # so a runner image change is a loud failure rather than a silent
+    # behavioural difference.
+    runs-on: ubuntu-latest
     # Run the workflow lint before anything else, which is what the gate is
     # for: a workflow file GitHub rejects at validation time surfaces as a
     # zero-job failure that YAML parsers silently tolerate, so it must be the
