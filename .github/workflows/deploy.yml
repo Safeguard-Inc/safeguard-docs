@@ -1,0 +1,99 @@
+name: deploy
+
+# Automatic deployment: a merge to main is a production deployment.
+#
+# The native Vercel Git integration is not used, because linking a GitHub
+# repository requires the Vercel GitHub App to be installed on the
+# organization, which is an organization-owner authorization rather than a
+# configuration change. Deploying from Actions instead keeps the whole
+# pipeline inside this repository, so the deploy is auditable in the same
+# place as the tests that gate it.
+on:
+  push:
+    branches: [main]
+  # A manual run is useful for redeploying without an empty commit, and for
+  # recovering a deployment that a transient Vercel failure dropped.
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_ORG_ID: team_2ZwaePjvF4ZD0TYMFM26DRSM
+  VERCEL_PROJECT_ID: prj_Y8LZTIDDhtNhugGIPsbfShfwIRLZ
+  PRODUCTION_URL: https://safeguard-docs.vercel.app
+
+jobs:
+  deploy:
+    name: deploy to Vercel and verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      # Deploy the exact commit that passed CI rather than re-building from
+      # the branch tip, so the served artifact and the tested artifact are
+      # the same artifact.
+      - name: Deploy to production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "${VERCEL_TOKEN}" ]; then
+            echo "::error::VERCEL_TOKEN secret is not configured; see README.md#deployment"
+            exit 1
+          fi
+          npx --yes vercel@latest deploy --prod --token "$VERCEL_TOKEN" --yes
+
+      # A deployment that reports success but serves a 404 or a broken asset
+      # is worse than a failed deploy, because it looks healthy. Assert the
+      # pages and the data the demo fetches actually resolve on the live URL.
+      - name: Verify the live deployment
+        run: |
+          set -euo pipefail
+          # Vercel aliases the production deployment, but the alias can lag
+          # the deployment by a few seconds; retry rather than fail a healthy
+          # deploy on a propagation race.
+          attempt=0
+          until curl -fsS -o /dev/null "${PRODUCTION_URL}/"; do
+            attempt=$((attempt + 1))
+            if [ "$attempt" -ge 12 ]; then
+              echo "::error::${PRODUCTION_URL}/ did not become reachable after ${attempt} attempts"
+              exit 1
+            fi
+            echo "waiting for the production alias (attempt ${attempt})"
+            sleep 5
+          done
+
+          failed=0
+          for path in \
+            "/" \
+            "/demo" \
+            "/docs/architecture" \
+            "/docs/contracts" \
+            "/assets/styles.css" \
+            "/assets/engine.js" \
+            "/data/deployment.json" \
+            "/data/combined-policy.json" \
+            "/data/golden-decisions.json" \
+            "/assets/favicon.svg"
+          do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${PRODUCTION_URL}${path}")
+            printf '%-34s %s\n' "${path}" "${code}"
+            if [ "${code}" != "200" ]; then
+              echo "::error::${path} returned ${code}"
+              failed=1
+            fi
+          done
+          if [ "${failed}" -ne 0 ]; then
+            echo "::error::the live deployment is not serving every page and asset"
+            exit 1
+          fi
+          echo "all pages and assets served from ${PRODUCTION_URL}"
