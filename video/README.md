@@ -23,11 +23,11 @@ Eleven scenes, in the order a reviewer, investor or technical buyer needs them:
 | 1 | Safeguard | title |
 | 2 | The problem | confidential transfers are private, which is what makes "prove it was allowed" hard |
 | 3 | Why reports don't work | compliance must decide inside the transaction, not after it |
-| 4 | What Safeguard is | DEFINE / ENFORCE / PROVE, one decision path |
+| 4 | What Safeguard is | DEFINE / ENFORCE / VERIFY, one decision path |
 | 5 | Architecture | one call, one boolean — the enforcement layer never sees the rules |
 | 6 | No unknown state | typed, assign-only error codes; it refuses rather than guesses |
 | 7 | Live deployment | the real engine, driven in the browser on the deployed site |
-| 8 | Prove | ledger events become evidence: normalised, digest-chained, classifiable |
+| 8 | Verify | ledger events become evidence: normalised, digest-chained, classifiable |
 | 9 | Verified, not asserted | Testnet contract ids, the read-only smoke test, test counts, cost |
 | 10 | Open source | the issue backlog and the CI that keeps the numbers honest |
 | 11 | Conclusion | privacy and compliance are not a trade-off |
@@ -82,12 +82,14 @@ and this table is the check the reviewer would otherwise have to guess at.
 
 | On screen | Source |
 | --------- | ------ |
-| `9 / 9` deployment checks | `safeguard-hooks verify --contract CC7UKMCY… --account <G…>` run with `SAFEGUARD_ADMIN_SK` **unset**, against the live Testnet contract |
+| `10 / 10` deployment checks | `safeguard-hooks --config deployments/testnet/configuration.json verify --account <G…>` run with `SAFEGUARD_ADMIN_SK` **unset**, against the live Testnet contract. Nine of the ten are pure reads (`9 passed, 0 failed, 1 skipped`); `--account` adds the tenth, a gate sample that must come back `#3 policy_denied`. No key is ever needed. |
 | `849` tests | `cargo test --workspace` in each Rust repository (188 policy, 163 hooks, 454 audit) + `npm test` in the TypeScript SDK (20) and in this repository (24) |
 | `92.6%` line coverage, audit layer | `safeguard-audit` `docs/coverage.md`, produced by `cargo llvm-cov` under the pinned toolchain |
 | `27,210 B` enforcement wasm | `safeguard-hooks` release build of `compliance-hooks` under the pinned toolchain; recorded in `docs/performance.md` |
-| `57` open issues | `org:Safeguard-Inc is:issue is:open` |
-| `0.0011 XLM` per compliant deposit | `safeguard-hooks` `scripts/bench-gas.sh`, the measured enforcement overhead over the baseline operation |
+| `49` open issues | `gh search issues --owner Safeguard-Inc --state open` (this is a snapshot: it changes as the backlog is worked) |
+| `6 / 6` recorded decisions | `npm test` in this repository: `data/golden-decisions.json` is a verbatim copy of the policy repository's fixture, and six parity tests reproduce each recorded `(decision, reason code, rule id)` exactly — 24 tests in the suite |
+| `139` typed codes | 11 policy reason codes + 13 policy contract variants + 8 enforcement contract variants + 7 enforcement rejection reasons + 100 audit catalog codes, indexed in [`docs/error-codes.md`](../docs/error-codes.md) |
+| `0.0011 XLM` per compliant deposit | `safeguard-hooks` `docs/performance.md`: 11,480 stroops for `before_deposit`, a 10% reduction from 12,779 after the release-profile work |
 
 If a number here changes, rebuild — `npm run video` re-renders the scene from
 `scenes.json`, and the READMEs are linked to the same file.

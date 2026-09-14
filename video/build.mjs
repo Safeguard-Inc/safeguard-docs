@@ -338,6 +338,26 @@ function html(slide, scene, index, total) {
 
 const sceneOfSlide = (name) => plan.scenes.find((s) => s.frames.some((f) => f.asset === `slide:${name}`));
 
+/**
+ * The literal values a slide promises to put on screen: badges, stats, metrics
+ * and card labels. These are the only strings that carry a *number*, and a
+ * stale number on a slide is a false claim in a video that cannot be patched
+ * after it is published — the first render of this video shipped a slide
+ * reading 849 next to narration saying eight hundred and five.
+ */
+function onScreenValues(slide) {
+  const values = [];
+  for (const badge of slide.badges ?? []) values.push(String(badge));
+  for (const row of slide.stats ?? []) values.push(...row.map(String));
+  for (const row of slide.metrics ?? []) values.push(...row.map(String));
+  for (const card of slide.cards ?? []) if (card.label !== undefined) values.push(String(card.label));
+  return values;
+}
+
+// Rendering reflows text (`<br>`, wrapping) and inserts non-breaking spaces, so
+// both sides of the comparison are normalised to single spaces.
+const flatten = (text) => text.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+
 async function buildSlides(page) {
   await mkdir(outSlides, { recursive: true });
   const names = Object.keys(plan.slides);
@@ -353,9 +373,20 @@ async function buildSlides(page) {
     if (text.length < 40) {
       throw new Error(`slide ${name} rendered almost no text (${text.length} chars)`);
     }
+    // The slide's own text is written beside the frame, so what a frame says is
+    // auditable without OCR — this is what makes the number check above
+    // meaningfully verifiable rather than a promise in a README.
+    await writeFile(join(outSlides, `${name}.txt`), text + "\n");
+    const rendered = flatten(text);
+    const missing = onScreenValues(slide).filter((value) => !rendered.includes(flatten(value)));
+    if (missing.length) {
+      throw new Error(
+        `slide ${name} does not show the values scenes.json declares: ${missing.join(", ")}`,
+      );
+    }
     const file = join(outSlides, `${name}.png`);
     await page.screenshot({ path: file });
-    report.push({ name, text: text.length, file });
+    report.push({ name, text: text.length, values: onScreenValues(slide).length, file });
   }
   return report;
 }
@@ -413,4 +444,7 @@ await writeFile(
 );
 console.log(`slides:   ${slides.length}`);
 console.log(`captures: ${captures.length}`);
-for (const item of [...slides, ...captures]) console.log(`  ${item.name}  (${item.text} chars)`);
+for (const item of [...slides, ...captures]) {
+  const values = item.values ? `, ${item.values} values verified` : "";
+  console.log(`  ${item.name}  (${item.text} chars${values})`);
+}

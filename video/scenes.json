@@ -73,16 +73,16 @@
       "badges": [
         "Live on Stellar Testnet",
         "5 public repositories",
-        "800+ tests"
+        "849 tests"
       ]
     },
     "problem": {
       "type": "statement",
       "kicker": "The problem",
       "headline": "Confidential tokens hide the transfer.\nThey cannot hide the question.",
-      "sub": "Stellar confidential tokens encrypt amounts and participants — which is exactly what makes them usable by regulated institutions, and exactly what makes \"prove it was allowed\" hard.",
+      "sub": "Stellar confidential tokens encrypt amounts and balances — which is exactly what makes them usable by regulated institutions, and exactly what makes \"prove it was allowed\" hard.",
       "stats": [
-        ["Encrypted", "amounts and participants"],
+        ["Encrypted", "amounts and balances"],
         ["Invisible", "to a compliance officer"],
         ["Unprovable", "after the fact"]
       ]
@@ -113,7 +113,7 @@
           "body": "A fail-closed compliance-hooks contract every confidential operation passes through. Holds no balances. Never sees the rules."
         },
         {
-          "label": "PROVE",
+          "label": "VERIFY",
           "title": "safeguard-audit",
           "body": "Turns ledger events into evidence: normalized, digest-chained, classified, redactable, independently verifiable."
         }
@@ -145,23 +145,23 @@
       "notes": [
         "Non-dense by design: a removed code is never reissued, so a code in a saved incident never changes meaning.",
         "Cannot reach a decision? Refuse. It would rather revert a legitimate transfer than let a blocked one through.",
-        "158 typed error variants across the stack, all documented and machine-checked."
+        "139 typed codes across the stack, every one documented and machine-checked."
       ]
     },
     "demo": {
       "type": "statement",
       "kicker": "Live deployment",
       "headline": "The decision engine,\nrunning in your browser",
-      "sub": "The documentation hub hosts the same engine the contract runs — in JavaScript, client-side. And the mirror is tested: 24 browser cases reproduce the exact decisions the policy repository recorded as its golden fixture.",
+      "sub": "The documentation hub hosts the same engine the contract runs — in JavaScript, client-side. And the mirror is tested: the six decisions the policy repository recorded as its golden fixture are reproduced exactly, inside a 24-test suite that runs on every push.",
       "stats": [
         ["safeguard-docs.vercel.app", "live"],
-        ["24 / 24", "golden decisions reproduced"],
+        ["6 / 6", "recorded decisions reproduced"],
         ["0", "network calls to decide"]
       ]
     },
     "evidence": {
       "type": "steps",
-      "kicker": "Prove",
+      "kicker": "Verify",
       "headline": "An allowed transfer is also\nan auditable claim",
       "steps": [
         {
@@ -188,13 +188,13 @@
       "kicker": "Verified, not asserted",
       "headline": "Live on Testnet — and self-checking",
       "metrics": [
-        ["9 / 9", "deployment checks pass with no secret key"],
+        ["10 / 10", "deployment checks pass with no secret key"],
         [     "849",
      "tests across all five repositories"],
         ["92.6%", "line coverage on the audit layer"],
         ["27,210 B", "enforcement contract, wasm"]
       ],
-      "footnote": "Enforcement adds roughly a tenth to the cost of an operation — about 0.0011 XLM for a compliant deposit."
+      "footnote": "A compliant deposit costs about 0.0011 XLM on Testnet; release-profile work cut that by 10%."
     },
     "opensource": {
       "type": "layers",
@@ -202,7 +202,7 @@
       "headline": "Built to be contributed to,\nnot just demonstrated",
       "cards": [
         {
-          "label": "57",
+          "label": "49",
           "title": "open issues",
           "body": "Scoped engineering work with acceptance criteria — conformance suites, property tests, fault injection — not cosmetic tasks."
         },
@@ -239,7 +239,7 @@
     {
       "id": "01-problem",
       "chapter": "The problem",
-      "narration": "Every bank, fund and fintech on the planet is being asked the same question. Can you move money onto a public blockchain without publishing your clients' balances? Confidential tokens on Stellar finally answer yes. Transactions are encrypted, amounts are hidden, participants are verified. But privacy creates a new problem, and it is the one that actually kills deals. If nobody can see the transfer, how does anyone prove it was allowed? Regulators do not accept trust us. And compliance cannot be a screenshot.",
+      "narration": "Every bank, fund and fintech on the planet is being asked the same question. Can you move money onto a public blockchain without publishing your clients' balances? Confidential tokens on Stellar finally answer yes. Transactions are encrypted, amounts and balances are hidden, and the transfer still settles on a public ledger. But privacy creates a new problem, and it is the one that actually kills deals. If nobody can see the transfer, how does anyone prove it was allowed? Regulators do not accept trust us. And compliance cannot be a screenshot.",
       "frames": [
         { "asset": "slide:problem", "weight": 1.0, "motion": "in" }
       ]
@@ -255,7 +255,7 @@
     {
       "id": "03-solution",
       "chapter": "What Safeguard is",
-      "narration": "Safeguard is that decision layer, split across three responsibilities. Define. An on-chain policy engine that says who may transact. Enforce. A compliance-hooks contract that every confidential operation passes through. Prove. An audit layer that turns ledger events into evidence you can defend. Alongside them, a documentation hub that runs the real engine in your browser, so a reviewer can see the decision rather than read about it.",
+      "narration": "Safeguard is that decision layer, split across three responsibilities. Define. An on-chain policy engine that says who may transact. Enforce. A compliance-hooks contract that every confidential operation passes through. Verify. An audit layer that turns ledger events into evidence you can defend. Alongside them, a documentation hub that runs the real engine in your browser, so a reviewer can see the decision rather than read about it.",
       "frames": [
         { "asset": "slide:solution", "weight": 0.72, "motion": "in" },
         { "asset": "capture:org", "weight": 0.28, "motion": "in" }
@@ -264,7 +264,7 @@
     {
       "id": "04-architecture",
       "chapter": "Architecture",
-      "narration": "The flow is deliberately one way. A confidential token calls the hooks contract before every register, deposit, transfer, withdrawal and merge. Hooks checks its own state first. Is this token even in scope? Then it asks the policy contract exactly one question. Is this party authorized? One call, one boolean. Everything complicated, sanctions lists, jurisdiction rules, identity registries, policy versions, lives in Define, where it belongs, and never reaches the enforcement layer.",
+      "narration": "The flow is deliberately one way. A confidential token calls the hooks contract before every register, deposit, transfer, withdrawal, merge and delegated transfer. Hooks checks its own state first. Is this token even in scope? Then it asks the policy contract exactly one question. Is this party authorized? One call, one boolean. Everything complicated, sanctions lists, jurisdiction rules, identity registries, policy versions, lives in Define, where it belongs, and never reaches the enforcement layer.",
       "frames": [
         { "asset": "slide:architecture", "weight": 0.68, "motion": "in" },
         { "asset": "capture:docs-architecture", "weight": 0.32, "motion": "in" }
@@ -282,7 +282,7 @@
     {
       "id": "06-demo",
       "chapter": "Live deployment",
-      "narration": "This part is live, not a mock-up. The documentation hub hosts the same decision engine the contract runs, in JavaScript, in your browser. Choose a subject's status, its jurisdiction, its sanctions exposure, and watch the engine decide. A compliant subject is approved. A frozen account is blocked. A sanctions match is flagged for review, with the rule that flagged it attributed in the decision. And this mirror is tested. Twenty-four browser cases reproduce the exact decisions the policy repository recorded, so the documentation cannot drift from the engine it describes.",
+      "narration": "This part is live, not a mock-up. The documentation hub hosts the same decision engine the contract runs, in JavaScript, in your browser. Choose a subject's status, its jurisdiction, its sanctions exposure, and watch the engine decide. A compliant subject is approved. A frozen account is blocked. A sanctions match is flagged for review, with the rule that flagged it attributed in the decision. And this mirror is tested. The six decisions the policy repository recorded as its golden fixture are reproduced exactly, not approximately, inside a twenty-four test suite that runs on every push, so the documentation cannot drift from the engine it describes.",
       "frames": [
         { "asset": "capture:docs-home", "weight": 0.3, "motion": "in" },
         { "asset": "capture:docs-demo", "weight": 0.4, "motion": "in" },
@@ -291,7 +291,7 @@
     },
     {
       "id": "07-evidence",
-      "chapter": "Prove",
+      "chapter": "Verify",
       "narration": "And a decision is only worth as much as your ability to show it later. That is the third repository. Ledger events are pulled and decoded through a verified wire model. They are normalized into one canonical shape, keyed on an identity derived from the source, so replaying the same ledger twice cannot double-count, and a reorg has defined behaviour rather than a guess. Each record carries a canonical digest, so tampering is detected by recomputation. Every field is classifiable, and protected values are replaced wholesale rather than partially masked. The result is evidence you can hand to an auditor who was not there.",
       "frames": [
         { "asset": "slide:evidence", "weight": 0.62, "motion": "in" },
@@ -301,7 +301,7 @@
     {
       "id": "08-proof",
       "chapter": "Verified, not asserted",
-      "narration": "None of this is theoretical. Both contracts are deployed on Stellar Testnet and were verified against the live ledger. The policy gate answering, and the hooks contract refusing an unbound token with error two. One command re-checks an entire deployment without needing a secret key, including a deliberate probe that proves the contract still fails closed. Eight hundred and five tests across the stack. And enforcement adds roughly a tenth to the cost of an operation, about a thousandth of an XLM for a compliant deposit.",
+      "narration": "None of this is theoretical. Both contracts are deployed on Stellar Testnet and were verified against the live ledger. The policy gate answering, and the hooks contract refusing an unbound token with error two. One command re-checks an entire deployment without needing a secret key, including a deliberate probe that proves the contract still fails closed. Eight hundred and forty-nine tests across the stack. And release-profile work cut the cost of a compliant deposit by ten percent, to about a thousandth of an XLM.",
       "frames": [
         { "asset": "capture:repo-hooks", "weight": 0.34, "motion": "in" },
         { "asset": "slide:proof", "weight": 0.66, "motion": "in" }
@@ -310,7 +310,7 @@
     {
       "id": "09-opensource",
       "chapter": "Open source",
-      "narration": "The whole stack is open source under one organisation, and it is built to be contributed to. Five public repositories, continuous integration on every one of them, a machine-checked error catalog, issue templates, and a backlog of fifty-seven genuinely technical issues, not cosmetic ones. Gas benchmarks, coverage floors, and a pinned toolchain so the numbers published in the documentation actually reproduce.",
+      "narration": "The whole stack is open source under one organisation, and it is built to be contributed to. Five public repositories, continuous integration on every one of them, a machine-checked error catalog, issue templates, and a backlog of forty-nine genuinely technical issues, not cosmetic ones. Gas benchmarks, coverage floors, and a pinned toolchain so the numbers published in the documentation actually reproduce.",
       "frames": [
         { "asset": "capture:issues", "weight": 0.34, "motion": "in" },
         { "asset": "slide:opensource", "weight": 0.66, "motion": "in" }
