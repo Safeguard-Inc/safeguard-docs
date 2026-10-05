@@ -17,3 +17,6 @@ video/assets/
 # Python bytecode from the narration and render steps.
 __pycache__/
 *.pyc
+
+# Local binary tooling
+video/bin/

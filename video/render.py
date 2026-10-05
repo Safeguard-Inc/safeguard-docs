@@ -32,6 +32,9 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+BIN = HERE / "bin"
+if BIN.exists() and str(BIN) not in os.environ.get("PATH", ""):
+    os.environ["PATH"] = str(BIN) + os.pathsep + os.environ.get("PATH", "")
 ASSETS = HERE / "assets"
 PARTS = ASSETS / "parts"
 OUT = ASSETS / "video"

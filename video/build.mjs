@@ -101,19 +101,21 @@ h1.sm { font-size: 70px; }
 .stat .l { margin-top: 10px; font-size: 21px; color: var(--muted); }
 
 /* layers */
-.cards { display: flex; gap: 26px; margin-top: 58px; }
+.cards { display: flex; gap: 20px; margin-top: 50px; }
 .card {
   flex: 1; border: 1px solid var(--line); background: var(--panel);
-  border-radius: 22px; padding: 36px 34px; display: flex; flex-direction: column;
+  border-radius: 22px; padding: 28px 26px; display: flex; flex-direction: column;
 }
 .chip {
-  align-self: flex-start; font-size: 19px; font-weight: 800; letter-spacing: 0.14em;
-  padding: 8px 16px; border-radius: 9px; margin-bottom: 24px;
+  align-self: flex-start; font-size: 17px; font-weight: 800; letter-spacing: 0.14em;
+  padding: 7px 14px; border-radius: 9px; margin-bottom: 20px;
   background: rgba(56,189,248,0.13); color: var(--cyan); border: 1px solid rgba(56,189,248,0.32);
 }
 .chip.g { background: rgba(52,211,153,0.13); color: var(--green); border-color: rgba(52,211,153,0.32); }
-.card h3 { font-size: 33px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.01em; }
-.card p { font-size: 23px; line-height: 1.5; color: var(--muted); }
+.chip.a { background: rgba(251,191,36,0.13); color: var(--amber); border-color: rgba(251,191,36,0.32); }
+.chip.p { background: rgba(192,132,252,0.13); color: #c084fc; border-color: rgba(192,132,252,0.32); }
+.card h3 { font-size: 26px; font-weight: 700; margin-bottom: 14px; letter-spacing: -0.01em; }
+.card p { font-size: 19px; line-height: 1.5; color: var(--muted); }
 
 /* flow */
 .flow { margin-top: 56px; }
@@ -232,36 +234,42 @@ function slideBody(slide) {
           .join("")}</div>
       </div>`;
     case "layers":
+      const chipClasses = ["", " g", " a", " p"];
       return `<div class="body">
         <div class="kicker">${esc(slide.kicker)}</div>
         <h1 class="sm">${esc(slide.headline)}</h1>
         <div class="cards">${slide.cards
           .map(
             (c, i) =>
-              `<div class="card"><div class="chip${i === 1 ? " g" : ""}">${esc(
+              `<div class="card"><div class="chip${chipClasses[i % chipClasses.length]}">${esc(
                 c.label,
               )}</div><h3>${esc(c.title)}</h3><p>${esc(c.body)}</p></div>`,
           )
           .join("")}</div>
       </div>`;
     case "flow":
+      const note = slide.note || "The enforcement layer gates what it holds — spend limits, bindings and freeze flags — and verifies with policy gates. Reverting is free: a denial stops at the first failing gate before funds move.";
+      const items = slide.items || [
+        { type: "node", title: "Client & Treasury", sub: "Payment & transfer requests" },
+        { type: "edge", text: "exec_payment · spend_cap", sub: "Soroban invoker" },
+        { type: "node", title: "safeguard-payments", sub: "GATEWAY · spend-cap escrow", hi: true },
+        { type: "edge", text: "is_authorized · check_limit", sub: "one call, one boolean" },
+        { type: "node", title: "safeguard-contracts", sub: "ENFORCE · policy & hooks" }
+      ];
+      const rowHtml = items.map(item => {
+        if (item.type === "node") {
+          return `<div class="node${item.hi ? " hi" : ""}"><div class="t">${esc(item.title)}</div><div class="s">${esc(item.sub)}</div></div>`;
+        } else {
+          return `<div class="arrow">→</div><div class="edge">${esc(item.text)}<span class="mono">${esc(item.sub || "")}</span></div><div class="arrow">→</div>`;
+        }
+      }).join("");
       return `<div class="body">
         <div class="kicker">${esc(slide.kicker)}</div>
         <h1 class="sm">${esc(slide.headline)}</h1>
         <div class="sub sub--tight">${esc(slide.sub)}</div>
         <div class="flow">
-          <div class="row">
-            <div class="node"><div class="t">Confidential token</div><div class="s">holds balances, holds proofs</div></div>
-            <div class="arrow">→</div>
-            <div class="edge">before_register · before_deposit<br>before_transfer · before_withdraw<span class="mono">before_* hook</span></div>
-            <div class="arrow">→</div>
-            <div class="node hi"><div class="t">compliance-hooks</div><div class="s">ENFORCE · fails closed</div></div>
-            <div class="arrow">→</div>
-            <div class="edge">is_authorized(account, token)<span class="mono">one call, one boolean</span></div>
-            <div class="arrow">→</div>
-            <div class="node"><div class="t">safeguard-policy</div><div class="s">DEFINE · decides eligibility</div></div>
-          </div>
-          <div class="flow-note">The enforcement layer gates what it holds — its own configuration, bindings and freeze flags — and never learns how many rules exist or what they are. Reverting is free: a denial stops at the first failing gate, before any later party is screened.</div>
+          <div class="row">${rowHtml}</div>
+          <div class="flow-note">${esc(note)}</div>
         </div>
       </div>`;
     case "code":
@@ -398,13 +406,14 @@ async function buildCaptures(browser) {
     const context = await browser.newContext({
       viewport: { width, height: spec.height ?? height },
       deviceScaleFactor: SCALE,
+      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
     });
     const page = await context.newPage();
-    await page.goto(spec.url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await page.goto(spec.url, { waitUntil: "commit", timeout: 30000 });
     try {
-      await page.waitForLoadState("networkidle", { timeout: 15000 });
+      await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
     } catch {
-      // Long-polling pages never go idle; a settled DOM is enough.
+      // settled enough
     }
     // Dismiss a consent banner if one is present, so it does not cover the UI.
     for (const label of ["Accept", "Accept all", "I agree"]) {

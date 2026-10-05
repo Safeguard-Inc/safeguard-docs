@@ -34,6 +34,9 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+BIN = HERE / "bin"
+if BIN.exists() and str(BIN) not in os.environ.get("PATH", ""):
+    os.environ["PATH"] = str(BIN) + os.pathsep + os.environ.get("PATH", "")
 ASSETS = HERE / "assets"
 AUDIO = ASSETS / "audio"
 
@@ -62,13 +65,21 @@ async def synth_edge_tts(scene: dict, video: dict, out: Path) -> None:
     """Synthesise with edge-tts (no API key, public neural endpoint)."""
     import edge_tts
 
-    communicate = edge_tts.Communicate(
-        scene["narration"],
-        video["voice"],
-        rate=video.get("rate", "+0%"),
-        pitch=video.get("pitch", "+0Hz"),
-    )
-    await communicate.save(str(out))
+    for attempt in range(5):
+        try:
+            communicate = edge_tts.Communicate(
+                scene["narration"],
+                video["voice"],
+                rate=video.get("rate", "+0%"),
+                pitch=video.get("pitch", "+0Hz"),
+            )
+            await communicate.save(str(out))
+            return
+        except Exception as err:
+            if attempt == 4:
+                raise
+            print(f"    retry {attempt + 1}/4 for {out.name} ({err})")
+            await asyncio.sleep(2 * (attempt + 1))
 
 
 def synth_gemini(scene: dict, video: dict, out: Path) -> None:
@@ -128,10 +139,11 @@ def main() -> int:
     takes = []
     for index, scene in enumerate(plan["scenes"]):
         out = AUDIO / f"{scene['id']}.mp3"
-        if engine == "gemini":
-            synth_gemini(scene, video, out)
-        else:
-            asyncio.run(synth_edge_tts(scene, video, out))
+        if not (out.exists() and out.stat().st_size > 5000):
+            if engine == "gemini":
+                synth_gemini(scene, video, out)
+            else:
+                asyncio.run(synth_edge_tts(scene, video, out))
         take = {
             "id": scene["id"],
             "chapter": scene["chapter"],
