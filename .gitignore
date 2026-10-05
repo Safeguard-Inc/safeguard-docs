@@ -20,3 +20,4 @@ __pycache__/
 
 # Local binary tooling
 video/bin/
+.vercel
