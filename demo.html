@@ -24,6 +24,7 @@
       <a href="demo.html" aria-current="page">Live demo</a>
       <a href="docs/architecture.html">Architecture</a>
       <a href="docs/contracts.html">Contracts</a>
+      <a href="https://safeguard-dashboard-mocha.vercel.app" target="_blank" rel="noopener">Web Console</a>
       <a href="https://github.com/Safeguard-Inc">GitHub</a>
     </nav>
   </div>
@@ -144,18 +145,17 @@
         It is a faithful mirror of the documented behaviour, and it is held to
         the project's own decisions. The site's test suite feeds this engine
         the policies from
-        <a href="https://github.com/Safeguard-Inc/safeguard-policy/tree/main/policies">safeguard-policy</a>
+        <a href="https://github.com/Safeguard-Inc/safeguard-contracts">safeguard-contracts</a>
         and asserts that the <code>(decision, reason code, rule id)</code>
         triples it produces are exactly the ones recorded in the upstream golden
         fixture —
-        <code>crates/safeguard-sdk/tests/fixtures/decisions.json</code>.
+        <code>crates/safeguard-core/tests/fixtures/decisions.json</code>.
       </p>
       <p>
         The authoritative implementations remain the Rust engine in
-        <code>safeguard-policy/crates/safeguard-core</code> (off-chain) and the
-        Soroban contract in <code>safeguard-policy/crates/safeguard-contract</code>
-        (on-chain). This page exists so you can see the semantics without
-        cloning, building or funding a wallet.
+        <code>crates/safeguard-core</code> (off-chain) and the
+        Soroban contracts in <code>contracts/safeguard-policy</code> and <code>contracts/safeguard-payments</code>
+        (on-chain). This page exists so you can test the decision semantics directly in your browser.
       </p>
       <p class="note">
         This demo does not touch the deployed Testnet contracts. The
@@ -173,8 +173,14 @@
 <footer class="site">
   <div class="wrap">
     <p>
-      Safeguard Inc. — compliance infrastructure for Stellar Confidential Tokens.
+      Safeguard Inc. — compliance infrastructure &amp; payment gateway for Stellar.
       Licensed under Apache-2.0.
+    </p>
+    <p>
+      <a href="https://github.com/Safeguard-Inc/safeguard-contracts">contracts</a> ·
+      <a href="https://github.com/Safeguard-Inc/safeguard-backend">backend</a> ·
+      <a href="https://github.com/Safeguard-Inc/safeguard-dashboard">dashboard</a> ·
+      <a href="https://github.com/Safeguard-Inc/safeguard-docs">docs</a>
     </p>
   </div>
 </footer>

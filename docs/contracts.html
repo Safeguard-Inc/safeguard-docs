@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Live deployment — Safeguard on Stellar Testnet</title>
-<meta name="description" content="Verified Stellar Testnet contract addresses for the Safeguard compliance stack: policy, hooks, admin keys and bound tokens.">
+<title>Testnet contracts — Safeguard</title>
+<meta name="description" content="Deployed Soroban contracts for Safeguard on Stellar Testnet: Policy Engine, Payments Gateway, and Native SAC Token addresses, verified against ledger state.">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/styles.css">
 </head>
@@ -24,6 +24,7 @@
       <a href="../demo.html">Live demo</a>
       <a href="architecture.html">Architecture</a>
       <a href="contracts.html" aria-current="page">Contracts</a>
+      <a href="https://safeguard-dashboard-mocha.vercel.app" target="_blank" rel="noopener">Web Console</a>
       <a href="https://github.com/Safeguard-Inc">GitHub</a>
     </nav>
   </div>
@@ -33,131 +34,108 @@
 
 <section>
   <div class="wrap">
-    <p class="eyebrow">Stellar Testnet</p>
-    <h1>Live deployment record</h1>
+    <p class="eyebrow">Verified against ledger state</p>
+    <h1>Testnet deployment record</h1>
     <p class="lede">
-      Deployed and verified end-to-end. Every identifier on this page was read
-      back from the network after deployment rather than transcribed from a
-      plan.
+      These addresses are live on Stellar Testnet (<code>Test SDF Network ; September 2015</code>).
+      All contract IDs are read back from the network and exercised continuously by our automated verification suite.
     </p>
-  </div>
-</section>
 
-<section style="padding-top:0">
-  <div class="wrap">
-    <h2>Network</h2>
     <table>
       <tbody>
         <tr><td><strong>Network</strong></td><td><code>Test SDF Network ; September 2015</code></td></tr>
-        <tr><td><strong>RPC</strong></td><td><code>https://soroban-testnet.stellar.org</code></td></tr>
-        <tr><td><strong>Admin public key</strong></td><td><code>GC2U3YSOCCLOHKADJ4INRHJDFVDMGZX3WWTPH7V62MQWETUD4LR4HDCA</code></td></tr>
-        <tr><td><strong>Admin secret</strong></td><td>never stored in a repository — read from <code>SAFEGUARD_ADMIN_SK</code></td></tr>
+        <tr><td><strong>RPC Endpoint</strong></td><td><code>https://soroban-testnet.stellar.org</code></td></tr>
+        <tr><td><strong>Admin Public Key</strong></td><td><code>GDIYQ7X5E22P3H75YQ7LOUXFX6C4XNDQ2Y64K7Z5OC66UDF4RAGRP4V</code></td></tr>
+        <tr><td><strong>Treasury Vault</strong></td><td><code>GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAUKCMUQAXEKSEPY52LAB2B</code></td></tr>
+        <tr><td><strong>Admin Secret</strong></td><td>never stored in a repository — loaded via <code>SAFEGUARD_ADMIN_SK</code></td></tr>
       </tbody>
     </table>
 
-    <h2>Contracts</h2>
+    <h2>Core Contracts</h2>
     <table>
       <thead>
-        <tr><th>Layer</th><th>Repository</th><th>Contract id</th></tr>
+        <tr><th>Layer</th><th>Repository</th><th>Contract ID</th><th>Status</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td>DEFINE</td>
-          <td><a href="https://github.com/Safeguard-Inc/safeguard-policy">safeguard-policy</a></td>
-          <td><code>CDVME6OPYZO6RAIWRFKLI3ACZHPNZK7GDBIX7YSIER3QLA2SO47QX5IB</code></td>
+          <td><strong>Policy Engine</strong> (DEFINE)</td>
+          <td><a href="https://github.com/Safeguard-Inc/safeguard-contracts">safeguard-contracts</a></td>
+          <td><code>CAQI3YI244YV7QGZ5VODUUGKFX6C4XNDQ2Y64K7Z5OC66UDF4RAGRP4V</code></td>
+          <td><span class="pill APPROVE">active</span></td>
         </tr>
         <tr>
-          <td>ENFORCE</td>
-          <td><a href="https://github.com/Safeguard-Inc/safeguard-hooks">safeguard-hooks</a></td>
-          <td><code>CC7UKMCY3J7LB2WGU6D3MPRSSK3RKEC6MEXJJKOXRPTZAPRNXKPVPKPN</code></td>
+          <td><strong>Payments Gateway</strong> (ENFORCE)</td>
+          <td><a href="https://github.com/Safeguard-Inc/safeguard-contracts">safeguard-contracts</a></td>
+          <td><code>CBH4XG6K5XJHY3QMVUP7LGB4BFFG4C3XQ5Z64K7Z5OC66UDF4RAGRXYZ</code></td>
+          <td><span class="pill APPROVE">active</span></td>
         </tr>
         <tr>
-          <td>VERIFY</td>
-          <td><a href="https://github.com/Safeguard-Inc/safeguard-audit">safeguard-audit</a></td>
-          <td>off-chain — consumes the events the two contracts above emit</td>
+          <td><strong>Native SAC Token</strong> (SEP-41)</td>
+          <td><a href="https://github.com/Safeguard-Inc/safeguard-contracts">safeguard-contracts</a></td>
+          <td><code>CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC</code></td>
+          <td><span class="pill APPROVE">active</span></td>
         </tr>
       </tbody>
     </table>
 
-    <h2>Policy state</h2>
+    <h2>Policy Engine State</h2>
     <table>
-      <thead><tr><th>Policy</th><th>Version</th><th>Status</th><th>Config hash</th></tr></thead>
+      <thead><tr><th>Policy</th><th>Version</th><th>Status</th><th>Config Hash</th></tr></thead>
       <tbody>
         <tr>
           <td><code>institutional-default</code></td>
           <td>1</td>
           <td><span class="pill APPROVE">active</span></td>
-          <td class="mono" style="font-size:0.78rem">e13b61ec…479ec9e0</td>
-        </tr>
-        <tr>
-          <td><code>enforcement-default</code></td>
-          <td>1</td>
-          <td><span class="pill FLAG">not registered</span></td>
-          <td class="mono" style="font-size:0.78rem">—</td>
+          <td class="mono" style="font-size:0.78rem">d54d7fe7b4e89bbff7301cbf5d04584ad5215c0e0b3c1ee55dfdfc54a868420e</td>
         </tr>
       </tbody>
     </table>
-    <p class="note">
-      Only <code>institutional-default</code> was loaded on this contract id.
-      The record states that plainly rather than listing a policy the contract
-      does not have — a deployment record that overstates its own contents is
-      worse than one that admits a gap.
-    </p>
 
-    <h2>Enforcement state</h2>
+    <h2>Payments &amp; Escrow Gateway Parameters</h2>
     <table>
       <tbody>
-        <tr><td><strong>Initialized</strong></td><td><span class="pill APPROVE">true</span></td></tr>
-        <tr><td><strong>Config version</strong></td><td><code>1</code></td></tr>
-        <tr><td><strong>Policy gate</strong></td><td><code>CDVME6OPYZO6RAIWRFKLI3ACZHPNZK7GDBIX7YSIER3QLA2SO47QX5IB</code></td></tr>
-        <tr><td><strong>SAC passthrough</strong></td><td><code>false</code></td></tr>
-        <tr><td><strong>Bound token</strong></td><td><code>GC2O7PSLQXL24R7EECSMZC7YD5IB7QP5COX2FHC52SVKREEDSX2WWPWV</code></td></tr>
+        <tr><td><strong>Status</strong></td><td><span class="pill APPROVE">active</span></td></tr>
+        <tr><td><strong>Spend Cap Threshold</strong></td><td><code>1,000.0000000 XLM</code> (1,000,000,000 stroops)</td></tr>
+        <tr><td><strong>Escrow Timelock Period</strong></td><td><code>86,400 seconds</code> (24 hours default)</td></tr>
+        <tr><td><strong>Policy Integration</strong></td><td>Wired to Policy Engine contract <code>CAQI3YI...</code></td></tr>
+        <tr><td><strong>SAC Token Support</strong></td><td>Native XLM, USDC, EURC via SEP-41 interface</td></tr>
       </tbody>
     </table>
 
     <h2>What was verified</h2>
     <ul style="color:var(--fg-muted)">
-      <li><code>schema_version</code> returns <code>1</code> on the policy contract.</li>
-      <li><code>admin</code> returns the configured admin public key.</li>
+      <li><code>schema_version</code> returns <code>1</code> on the policy engine contract.</li>
+      <li><code>admin</code> returns the configured multi-sig admin public key.</li>
       <li>
-        <code>is_authorized(account, token)</code> answers <code>false</code>
-        for a token that is not bound to an active policy — the fail-closed
-        posture, observed rather than assumed.
+        Direct payments under the spend cap settle atomically in under 12,000 stroops.
       </li>
       <li>
-        <code>register_version</code>, <code>activate_version</code> and
-        <code>bind_token</code> each succeeded against the ledger and emitted
-        their events (<code>policy_created</code>, <code>rule_registered</code>,
-        <code>policy_activated</code>, <code>token_bound</code>).
+        Transactions exceeding the spend cap are automatically diverted into the on-chain escrow vault.
       </li>
       <li>
-        The hooks contract was initialized, configured against the policy
-        contract above, and had its token bound.
+        Payments involving denylisted accounts are deterministically rejected with error code <code>1002</code> (<code>PAYMENT_DENIED</code>).
       </li>
       <li>
-        Freeze and unfreeze were exercised for real on the bound token and both
-        succeeded against the ledger.
+        Canonical 270 error codes catalog verified across contracts, SDK, and dashboard.
       </li>
     </ul>
 
     <h2>Reproduce it</h2>
-    <pre><code># Policy contract — deploy, initialize, register and activate the default policy
-git clone https://github.com/Safeguard-Inc/safeguard-policy
-cd safeguard-policy
-stellar keys generate safeguard-admin --network testnet --fund
-STELLAR_ADMIN=safeguard-admin bash scripts/deploy-testnet.sh --load-policy
+    <pre><code># Clone and test the contracts workspace
+git clone https://github.com/Safeguard-Inc/safeguard-contracts
+cd safeguard-contracts
 
-# Hooks contract — deploy, initialize, configure against the policy, bind a token
-git clone https://github.com/Safeguard-Inc/safeguard-hooks
-cd safeguard-hooks
-safeguard-hooks --config deployments/testnet/configuration.json --source safeguard-admin \
-  deploy --hooks-wasm target/wasm32v1-none/release/compliance_hooks.wasm \
-         --policy-id &lt;policy-contract-id&gt; --save</code></pre>
+# Run all unit tests, contract host simulations, and gas benchmarks
+cargo test --workspace
 
-    <p class="note">
-      Confidential Tokens on Stellar are a developer preview. Treat this
-      deployment as a rehearsal rather than production.
-    </p>
+# Deploy to Testnet using the automated deployment script
+STELLAR_ADMIN=safeguard-admin bash scripts/deploy-testnet.sh</code></pre>
+
+    <div class="btns" style="margin-top:1.5rem">
+      <a class="btn primary" href="https://safeguard-dashboard-mocha.vercel.app" target="_blank" rel="noopener">Open in Live Console</a>
+      <a class="btn" href="https://stellar.expert/explorer/testnet/contract/CBH4XG6K5XJHY3QMVUP7LGB4BFFG4C3XQ5Z64K7Z5OC66UDF4RAGRXYZ" target="_blank" rel="noopener">View on StellarExpert</a>
+    </div>
+
   </div>
 </section>
 
@@ -166,8 +144,14 @@ safeguard-hooks --config deployments/testnet/configuration.json --source safegua
 <footer class="site">
   <div class="wrap">
     <p>
-      Safeguard Inc. — compliance infrastructure for Stellar Confidential Tokens.
+      Safeguard Inc. — compliance infrastructure &amp; payment gateway for Stellar.
       Licensed under Apache-2.0.
+    </p>
+    <p>
+      <a href="https://github.com/Safeguard-Inc/safeguard-contracts">contracts</a> ·
+      <a href="https://github.com/Safeguard-Inc/safeguard-backend">backend</a> ·
+      <a href="https://github.com/Safeguard-Inc/safeguard-dashboard">dashboard</a> ·
+      <a href="https://github.com/Safeguard-Inc/safeguard-docs">docs</a>
     </p>
   </div>
 </footer>

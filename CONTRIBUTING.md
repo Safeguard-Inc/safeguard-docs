@@ -1,17 +1,19 @@
-# Contributing to Safeguard Policy
+# Contributing to Safeguard Docs
 
-Thanks for contributing. This repository is part of a three-repository
-"Safeguard" family:
+Thanks for contributing. This repository is part of the four-tier Safeguard organization:
 
 ```
 SAFEGUARD
-   ├── safeguard-docs   DEFINE  ← you are here
-   ├── safeguard-hooks    ENFORCE
-   └── safeguard-audit    VERIFY
+   ├── safeguard-contracts   DEFINE & ENFORCE
+   ├── safeguard-backend     INTEGRATE & SIMULATE
+   ├── safeguard-dashboard   OPERATE & CONSOLE
+   └── safeguard-docs        EXPLAIN & VERIFY  ← you are here
 ```
 
-`safeguard-docs` decides what the rules are. `safeguard-hooks` enforces
-those rules. `safeguard-audit` proves what happened.
+`safeguard-contracts` contains the Soroban smart contracts and core decision engine.
+`safeguard-backend` provides the TypeScript client SDK, REST API, and pre-flight simulation.
+`safeguard-dashboard` hosts the Web3 operator console.
+`safeguard-docs` explains the architecture and provides browser-based verification.
 
 ## Code of conduct
 

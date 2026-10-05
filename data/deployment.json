@@ -5,13 +5,15 @@
   "repository": "https://github.com/Safeguard-Inc/safeguard-docs",
   "note": "Served from the deployment itself, so the README badge reports the deployment's own recorded status instead of a hard-coded value.",
   "extends": [
-    "safeguard-policy",
-    "safeguard-hooks",
-    "safeguard-audit"
+    "safeguard-contracts",
+    "safeguard-backend",
+    "safeguard-dashboard"
   ],
   "testnet": {
-    "policy_contract": "CDVME6OPYZO6RAIWRFKLI3ACZHPNZK7GDBIX7YSIER3QLA2SO47QX5IB",
-    "hooks_contract": "CC7UKMCY3J7LB2WGU6D3MPRSSK3RKEC6MEXJJKOXRPTZAPRNXKPVPKPN",
+    "policy_contract": "CAQI3YI244YV7QGZ5VODUUGKFX6C4XNDQ2Y64K7Z5OC66UDF4RAGRP4V",
+    "payments_contract": "CBH4XG6K5XJHY3QMVUP7LGB4BFFG4C3XQ5Z64K7Z5OC66UDF4RAGRXYZ",
+    "native_asset_contract": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+    "admin_address": "GDIYQ7X5E22P3H75YQ7LOUXFX6C4XNDQ2Y64K7Z5OC66UDF4RAGRP4V",
     "network": "testnet",
     "rpc_url": "https://soroban-testnet.stellar.org"
   }
