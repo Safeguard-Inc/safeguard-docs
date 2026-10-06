@@ -45,7 +45,7 @@
       <tbody>
         <tr><td><strong>Network</strong></td><td><code>Test SDF Network ; September 2015</code></td></tr>
         <tr><td><strong>RPC Endpoint</strong></td><td><code>https://soroban-testnet.stellar.org</code></td></tr>
-        <tr><td><strong>Admin Public Key</strong></td><td><code>GDIYQ7X5E22P3H75YQ7LOUXFX6C4XNDQ2Y64K7Z5OC66UDF4RAGRP4V</code></td></tr>
+        <tr><td><strong>Admin Public Key</strong></td><td><code>GC5MCMHHMFV7GOQ7DVN7MOTMHGTMVIP3YFQAAVFZ6WKUE6SLGQBVODW4</code></td></tr>
         <tr><td><strong>Treasury Vault</strong></td><td><code>GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAUKCMUQAXEKSEPY52LAB2B</code></td></tr>
         <tr><td><strong>Admin Secret</strong></td><td>never stored in a repository — loaded via <code>SAFEGUARD_ADMIN_SK</code></td></tr>
       </tbody>
@@ -60,13 +60,13 @@
         <tr>
           <td><strong>Policy Engine</strong> (DEFINE)</td>
           <td><a href="https://github.com/Safeguard-Inc/safeguard-contracts">safeguard-contracts</a></td>
-          <td><code>CAQI3YI244YV7QGZ5VODUUGKFX6C4XNDQ2Y64K7Z5OC66UDF4RAGRP4V</code></td>
+          <td><code>CCXFDOLLLFZKAG7X6AKN2YLKET5F5X565IHZXPOAGCM7W6MJG5WKANLN</code></td>
           <td><span class="pill APPROVE">active</span></td>
         </tr>
         <tr>
           <td><strong>Payments Gateway</strong> (ENFORCE)</td>
           <td><a href="https://github.com/Safeguard-Inc/safeguard-contracts">safeguard-contracts</a></td>
-          <td><code>CBH4XG6K5XJHY3QMVUP7LGB4BFFG4C3XQ5Z64K7Z5OC66UDF4RAGRXYZ</code></td>
+          <td><code>CDC6KVX7QT7CD3GOVGX44NQUNS7FMSZKIAXTV3TDGSXQKJRQMDZRSRCN</code></td>
           <td><span class="pill APPROVE">active</span></td>
         </tr>
         <tr>
@@ -80,14 +80,11 @@
 
     <h2>Policy Engine State</h2>
     <table>
-      <thead><tr><th>Policy</th><th>Version</th><th>Status</th><th>Config Hash</th></tr></thead>
       <tbody>
-        <tr>
-          <td><code>institutional-default</code></td>
-          <td>1</td>
-          <td><span class="pill APPROVE">active</span></td>
-          <td class="mono" style="font-size:0.78rem">d54d7fe7b4e89bbff7301cbf5d04584ad5215c0e0b3c1ee55dfdfc54a868420e</td>
-        </tr>
+        <tr><td><strong>Initialized</strong></td><td><span class="pill APPROVE">yes</span> admin <code>GC5MCMHH…ODW4</code></td></tr>
+        <tr><td><strong><code>schema_version()</code></strong></td><td><code>1</code> (read back from the ledger)</td></tr>
+        <tr><td><strong>WASM SHA-256</strong></td><td class="mono" style="font-size:0.78rem">4721e38306848d50a5ed0106eb3054cf2bd787983587b54a4814547ef38c8385</td></tr>
+        <tr><td><strong>Registered policy versions</strong></td><td>None yet. Register one with <code>register_version</code> + <code>activate_version</code> using the JSON in <code>policies/</code>.</td></tr>
       </tbody>
     </table>
 
@@ -95,45 +92,37 @@
     <table>
       <tbody>
         <tr><td><strong>Status</strong></td><td><span class="pill APPROVE">active</span></td></tr>
-        <tr><td><strong>Spend Cap Threshold</strong></td><td><code>1,000.0000000 XLM</code> (1,000,000,000 stroops)</td></tr>
-        <tr><td><strong>Escrow Timelock Period</strong></td><td><code>86,400 seconds</code> (24 hours default)</td></tr>
-        <tr><td><strong>Policy Integration</strong></td><td>Wired to Policy Engine contract <code>CAQI3YI...</code></td></tr>
-        <tr><td><strong>SAC Token Support</strong></td><td>Native XLM, USDC, EURC via SEP-41 interface</td></tr>
+        <tr><td><strong>Spend Cap (escrow threshold)</strong></td><td><code>100 XLM</code> (1,000,000,000 stroops)</td></tr>
+        <tr><td><strong>Escrow Refund Timelock</strong></td><td><code>86,400 seconds</code> (24 hours)</td></tr>
+        <tr><td><strong>Rule source</strong></td><td>Own denylist + spend cap. Calling the Policy Engine from <code>pay()</code> is on the roadmap.</td></tr>
+        <tr><td><strong>Token Support</strong></td><td>Any SEP-41 token (native XLM SAC used on Testnet)</td></tr>
       </tbody>
     </table>
 
-    <h2>What was verified</h2>
-    <ul style="color:var(--fg-muted)">
-      <li><code>schema_version</code> returns <code>1</code> on the policy engine contract.</li>
-      <li><code>admin</code> returns the configured multi-sig admin public key.</li>
-      <li>
-        Direct payments under the spend cap settle atomically in under 12,000 stroops.
-      </li>
-      <li>
-        Transactions exceeding the spend cap are automatically diverted into the on-chain escrow vault.
-      </li>
-      <li>
-        Payments involving denylisted accounts are deterministically rejected with error code <code>1002</code> (<code>PAYMENT_DENIED</code>).
-      </li>
-      <li>
-        Canonical 270 error codes catalog verified across contracts, SDK, and dashboard.
-      </li>
-    </ul>
+    <h2>What was verified on-chain</h2>
+    <table>
+      <thead><tr><th>Path</th><th>Result</th><th>Fee</th><th>Transaction</th></tr></thead>
+      <tbody>
+        <tr><td>Approved: 50 XLM</td><td>Settled directly, reason 0</td><td>19,237 stroops</td><td><a href="https://stellar.expert/explorer/testnet/tx/c762b42f818387aa584ea33d3da006f22671071ed6e182068994ea6597395e6c" target="_blank" rel="noopener">c762b42f…</a></td></tr>
+        <tr><td>Escrowed: 150 XLM</td><td>Escrow #1, reason 6</td><td>739,309 stroops</td><td><a href="https://stellar.expert/explorer/testnet/tx/2d83231685f03b17e1a001e6c82c38453459b4f67b416ef60f9be73133026f0e" target="_blank" rel="noopener">2d832316…</a></td></tr>
+        <tr><td>Escrow released</td><td>Admin released #1</td><td>16,575 stroops</td><td><a href="https://stellar.expert/explorer/testnet/tx/f1257dd8e902c4dad2c00b8f71cc98999d9885e402fbd7959c4242202cef2331" target="_blank" rel="noopener">f1257dd8…</a></td></tr>
+        <tr><td>Denylisted recipient</td><td>Rejected: <code>RecipientDenylisted</code> (#11)</td><td>0 (never submitted)</td><td>—</td></tr>
+      </tbody>
+    </table>
 
     <h2>Reproduce it</h2>
     <pre><code># Clone and test the contracts workspace
 git clone https://github.com/Safeguard-Inc/safeguard-contracts
 cd safeguard-contracts
-
-# Run all unit tests, contract host simulations, and gas benchmarks
 cargo test --workspace
 
-# Deploy to Testnet using the automated deployment script
-STELLAR_ADMIN=safeguard-admin bash scripts/deploy-testnet.sh</code></pre>
+# Deploy your own instance to Testnet
+stellar keys generate my-admin --network testnet --fund
+STELLAR_IDENTITY=my-admin ./scripts/deploy-testnet.sh</code></pre>
 
     <div class="btns" style="margin-top:1.5rem">
       <a class="btn primary" href="https://safeguard-dashboard-mocha.vercel.app" target="_blank" rel="noopener">Open in Live Console</a>
-      <a class="btn" href="https://stellar.expert/explorer/testnet/contract/CBH4XG6K5XJHY3QMVUP7LGB4BFFG4C3XQ5Z64K7Z5OC66UDF4RAGRXYZ" target="_blank" rel="noopener">View on StellarExpert</a>
+      <a class="btn" href="https://stellar.expert/explorer/testnet/contract/CDC6KVX7QT7CD3GOVGX44NQUNS7FMSZKIAXTV3TDGSXQKJRQMDZRSRCN" target="_blank" rel="noopener">View on StellarExpert</a>
     </div>
 
   </div>

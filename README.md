@@ -2,63 +2,101 @@
 
 [![CI](https://github.com/Safeguard-Inc/safeguard-docs/actions/workflows/ci.yml/badge.svg)](https://github.com/Safeguard-Inc/safeguard-docs/actions/workflows/ci.yml)
 [![Deployment](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsafeguard-docs.vercel.app%2Fdata%2Fdeployment.json&query=%24.status&label=Vercel&color=4ade9b)](https://safeguard-docs.vercel.app)
+[![Engine parity tests](https://img.shields.io/badge/engine_parity-24_passing-4ade9b)](tests/engine.test.mjs)
 [![Pitch video](https://img.shields.io/badge/pitch_video-5_minutes-4ade9b)](https://safeguard-docs.vercel.app/assets/video/safeguard-pitch.mp4)
-[![Canonical Errors](https://img.shields.io/badge/Errors-270%20Cataloged-blue.svg)](docs/error-codes.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Live Console](https://img.shields.io/badge/Console-Live_Demo-brightgreen.svg)](https://safeguard-dashboard-mocha.vercel.app)
 
-**DOCUMENTATION HUB & VERIFICATION SUITE for Safeguard on Stellar.**
+**The documentation hub for Safeguard: policy-guarded payments on Stellar.**
+It explains how the stack fits together, runs the decision engine live in your
+browser, and records the Testnet deployment, with every claim checkable
+against the chain.
 
-## Pitch Video
-
-[![Watch the five-minute pitch](assets/video/safeguard-pitch-poster.jpg)](https://safeguard-docs.vercel.app/assets/video/safeguard-pitch.mp4)
-
-**Five minutes, end to end:** the problem, the 4-tier architecture, the live decision engine driven in a browser, and the contracts running on Testnet — with the real contract IDs, the read-only deployment verification, and the measured cost of an operation.
-
-The video is *built from this repository* rather than edited by hand. The slides, the captures (photographed from this deployment as it runs), the voice-over, and the edit are all produced by [`video/`](video/), so the video cannot drift away from what the project does.
+**Live:** **<https://safeguard-docs.vercel.app>**
 
 ---
 
-## Four-Tier Architecture
+## Table of contents
 
-```text
-                 SAFEGUARD ON STELLAR
-                          │
-       ┌──────────────────┼──────────────────┬──────────────────┐
-       ▼                  ▼                  ▼                  ▼
-   CONTRACTS           BACKEND           DASHBOARD             DOCS
-DEFINE & ENFORCE      INTEGRATE           CONSOLE             VERIFY
+- [Pitch video](#pitch-video)
+- [The Safeguard stack](#the-safeguard-stack)
+- [Live Testnet deployment](#live-testnet-deployment)
+- [Site map](#site-map)
+- [The demo is verifiable, not decorative](#the-demo-is-verifiable-not-decorative)
+- [Running locally](#running-locally)
+- [How the video is built](#how-the-video-is-built)
+- [CI and deployment](#ci-and-deployment)
+- [Contributing (Stellar Drips Wave)](#contributing-stellar-drips-wave)
+- [License](#license)
+
+---
+
+## Pitch video
+
+[![Watch the five-minute pitch](assets/video/safeguard-pitch-poster.jpg)](https://safeguard-docs.vercel.app/assets/video/safeguard-pitch.mp4)
+
+Five minutes, end to end: the problem, the architecture, the decision engine
+running in a browser, and the contracts on Testnet. Captions are in
+[`assets/video/safeguard-pitch.vtt`](assets/video/safeguard-pitch.vtt).
+
+## The Safeguard stack
+
+```mermaid
+flowchart LR
+    Dash["safeguard-dashboard: operator console"] -->|"pre-flight"| Back["safeguard-backend: SDK + REST"]
+    Back -->|"mirrors rules of"| Pay["safeguard-contracts: SafeguardPayments"]
+    Pay -->|"approve"| Direct["Direct SEP-41 transfer"]
+    Pay -->|"over cap"| Escrow["On-chain escrow"]
+    Pay -->|"denylisted"| Revert["Revert #11 / #12"]
+    Docs["safeguard-docs: this repo"] -.->|"documents + verifies"| Pay
 ```
 
 | Repository | Role | Question it answers |
 | :--- | :--- | :--- |
-| [`safeguard-contracts`](https://github.com/Safeguard-Inc/safeguard-contracts) | **Define & Enforce** | What are the rules and how do tokens move on-chain? |
-| [`safeguard-backend`](https://github.com/Safeguard-Inc/safeguard-backend) | **Integrate & Simulate** | How do client apps pre-flight payments and decode reverts? |
-| [`safeguard-dashboard`](https://github.com/Safeguard-Inc/safeguard-dashboard) | **Operate & Disburse** | How do operators manage policies and submit transactions? |
-| **`safeguard-docs`** | **Explain & Verify** | **How does it fit together, and does it work?** |
+| [`safeguard-contracts`](https://github.com/Safeguard-Inc/safeguard-contracts) | Define and enforce | What are the rules, and how do tokens move on-chain? |
+| [`safeguard-backend`](https://github.com/Safeguard-Inc/safeguard-backend) | Integrate | How does an app check a payment before signing, and decode errors? |
+| [`safeguard-dashboard`](https://github.com/Safeguard-Inc/safeguard-dashboard) | Operate | What does an operator see? ([live](https://safeguard-dashboard-mocha.vercel.app)) |
+| **`safeguard-docs`** | Explain and verify | How does it fit together, and does it actually work? |
 
----
+## Live Testnet deployment
 
-## What is in here
+Deployed on 2026-10-05. The machine-readable record is
+[`data/deployment.json`](data/deployment.json), and the full page is
+[`docs/contracts.html`](https://safeguard-docs.vercel.app/docs/contracts.html).
 
-| Path | What it is |
+| Component | ID |
 | :--- | :--- |
-| `index.html` | Landing page: the problem, four-tier architecture, live deployment table, and quickstart. |
-| `demo.html` | An interactive evaluation of the policy decision engine, running entirely in the browser. |
-| `docs/architecture.html` | The four-tier architecture, decision precedence, fail-closed posture, and 270 error codes taxonomy. |
-| `docs/contracts.html` | The live Testnet deployment record: contract IDs, admin keys, parameters, and verification tests. |
-| `docs/error-codes.md` | The canonical 270 error codes registry across all four tiers. |
-| `assets/engine.js` | Reference JavaScript decision engine mirroring the Rust Soroban contract rules. |
-| `tests/engine.test.mjs` | Automated parity test suite validating that the browser engine matches upstream golden fixtures. |
-| `data/deployment.json` | Live deployment registry fetched dynamically by badges and clients. |
+| SafeguardPayments | [`CDC6KVX7QT7CD3GOVGX44NQUNS7FMSZKIAXTV3TDGSXQKJRQMDZRSRCN`](https://stellar.expert/explorer/testnet/contract/CDC6KVX7QT7CD3GOVGX44NQUNS7FMSZKIAXTV3TDGSXQKJRQMDZRSRCN) |
+| SafeguardPolicy | [`CCXFDOLLLFZKAG7X6AKN2YLKET5F5X565IHZXPOAGCM7W6MJG5WKANLN`](https://stellar.expert/explorer/testnet/contract/CCXFDOLLLFZKAG7X6AKN2YLKET5F5X565IHZXPOAGCM7W6MJG5WKANLN) |
+| Native XLM SAC | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
+| Admin | [`GC5MCMHHMFV7GOQ7DVN7MOTMHGTMVIP3YFQAAVFZ6WKUE6SLGQBVODW4`](https://stellar.expert/explorer/testnet/account/GC5MCMHHMFV7GOQ7DVN7MOTMHGTMVIP3YFQAAVFZ6WKUE6SLGQBVODW4) |
 
----
+| Path | Fee | Proof |
+| :--- | ---: | :--- |
+| Approved: 50 XLM | 19,237 stroops | [`c762b42f…`](https://stellar.expert/explorer/testnet/tx/c762b42f818387aa584ea33d3da006f22671071ed6e182068994ea6597395e6c) |
+| Escrowed: 150 XLM | 739,309 stroops | [`2d832316…`](https://stellar.expert/explorer/testnet/tx/2d83231685f03b17e1a001e6c82c38453459b4f67b416ef60f9be73133026f0e) |
+| Escrow released | 16,575 stroops | [`f1257dd8…`](https://stellar.expert/explorer/testnet/tx/f1257dd8e902c4dad2c00b8f71cc98999d9885e402fbd7959c4242202cef2331) |
+| Denylisted: blocked | 0 | Rejected at simulation (#11) |
+
+## Site map
+
+| Page / path | What it is |
+| :--- | :--- |
+| [`index.html`](https://safeguard-docs.vercel.app) | Landing page: the problem, architecture, deployment table, quickstart |
+| [`demo.html`](https://safeguard-docs.vercel.app/demo.html) | Interactive policy decision engine running entirely in the browser |
+| [`docs/architecture.html`](https://safeguard-docs.vercel.app/docs/architecture.html) | Decision precedence, fail-closed behaviour, error taxonomy |
+| [`docs/contracts.html`](https://safeguard-docs.vercel.app/docs/contracts.html) | Deployment record, parameters and on-chain verification |
+| [`docs/error-codes.md`](docs/error-codes.md) | Integrator-facing error catalog |
+| `assets/engine.js` | JavaScript port of the `safeguard-core` decision engine |
+| `data/*.json` | Deployment record, policies and golden decisions used by the tests |
+| `video/` | Pipeline that generates the pitch video |
 
 ## The demo is verifiable, not decorative
 
-A reference implementation on a documentation site is a liability if it quietly disagrees with the real engine — it teaches readers the wrong behaviour with confidence.
-
-So the demo is held to the project's own decisions. For every recorded outcome the test suite constructs an input and asserts that the demo's `(decision, reason code, rule id)` triple matches **exactly**. Every cell of the documented account-status and jurisdiction tables is asserted too.
+A reference engine on a docs site does harm if it quietly disagrees with the
+real one: it teaches the wrong behaviour with confidence. So for every
+recorded golden decision, the test suite rebuilds the input and asserts that
+the demo's `(decision, reason code, rule id)` matches **exactly**. Every cell
+of the account-status and jurisdiction tables is asserted as well.
 
 ```bash
 npm test
@@ -73,55 +111,54 @@ npm test
 ✔ golden parity #6: an unknown jurisdiction
 ✔ an unrecognized account status fails closed to unknown, never active
 ✔ precedence: account status outranks every policy rule
-✔ the engine is a pure function of its request
 ...
 ℹ pass 24
 ℹ fail 0
 ```
 
-The authoritative smart contract implementations remain the Rust engine in `safeguard-contracts/crates/safeguard-core` and the Soroban contracts in `safeguard-contracts/contracts/safeguard-payments` and `safeguard-contracts/contracts/safeguard-policy`.
+The authoritative implementations are `safeguard-core` and the Soroban
+contracts in [`safeguard-contracts`](https://github.com/Safeguard-Inc/safeguard-contracts).
 
----
+## Running locally
 
-## Running it locally
-
-There is no build step. The site is static HTML, CSS, and ES modules, so it renders identically everywhere — including offline.
+There's no build step. The site is static HTML, CSS and ES modules.
 
 ```bash
 git clone https://github.com/Safeguard-Inc/safeguard-docs
 cd safeguard-docs
-
-npm test          # the engine/fixture parity suite
+npm test          # engine parity suite (Node 20+)
 npm run serve     # http://localhost:4173
+python3 scripts/check-links.py   # broken link check
 ```
 
----
+## How the video is built
 
-## Deployment
+The video is generated from this repository, not edited by hand, so it can be
+rebuilt whenever the project changes:
 
-The site is deployed on Vercel at [safeguard-docs.vercel.app](https://safeguard-docs.vercel.app). `vercel.json` carries the static-site configuration and security headers.
+| Step | Command | What it does |
+| :--- | :--- | :--- |
+| 1 | `npm run video:assets` | Renders slides and captures the live demo with Playwright |
+| 2 | `npm run video:narrate` | Generates the voice-over from `video/scenes.json` |
+| 3 | `npm run video:render` | Assembles the MP4, poster frame and captions |
 
----
+See [`video/README.md`](video/README.md) for requirements.
 
-## Live Stellar Testnet Deployments
+## CI and deployment
 
-The contracts are deployed on Stellar Testnet (`Test SDF Network ; September 2015`):
+- **CI** ([`ci.yml`](.github/workflows/ci.yml)): parity tests and the link
+  check on every push and pull request.
+- **Deploy** ([`deploy.yml`](.github/workflows/deploy.yml)): pushes to `main`
+  deploy to Vercel. `vercel.json` sets security headers and caching.
 
-| Contract | Address / Contract ID |
-| :--- | :--- |
-| **Safeguard Payments Gateway** | `CBH4XG6K5XJHY3QMVUP7LGB4BFFG4C3XQ5Z64K7Z5OC66UDF4RAGRXYZ` |
-| **Safeguard Policy Engine** | `CAQI3YI244YV7QGZ5VODUUGKFX6C4XNDQ2Y64K7Z5OC66UDF4RAGRP4V` |
-| **Native SAC Token (SEP-41)** | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` |
-| **Governance Admin** | `GDIYQ7X5E22P3H75YQ7LOUXFX6C4XNDQ2Y64K7Z5OC66UDF4RAGRP4V` |
+## Contributing (Stellar Drips Wave)
 
----
-
-## Contributing
-
-See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md), and [`SECURITY.md`](SECURITY.md).
-
----
+Good first contributions: new demo scenarios, more golden-parity cases,
+accessibility fixes, and translations.
+[Browse open issues](https://github.com/Safeguard-Inc/safeguard-docs/issues) ·
+[CONTRIBUTING.md](CONTRIBUTING.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) ·
+[SECURITY.md](SECURITY.md)
 
 ## License
 
-Apache-2.0 — see [`LICENSE`](LICENSE).
+Apache-2.0. See [`LICENSE`](LICENSE).
