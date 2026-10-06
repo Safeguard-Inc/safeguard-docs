@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-Safeguard is compliance infrastructure for Stellar Confidential Tokens:
+Safeguard is compliance infrastructure for Stellar tokens (SEP-41 SAC today, architected for future confidential standards):
 a mistake here can freeze legitimate users or let sanctioned actors transact.
 Please treat security findings with the seriousness they deserve.
 
