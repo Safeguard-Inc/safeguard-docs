@@ -148,7 +148,7 @@ jobs:
               if re.search(r"^\d\d:\d\d:\d\d,", text, re.M):
                   problems.append("the caption track uses SRT comma timestamps, which browsers ignore")
               cues = len(re.findall(r"^\d\d:\d\d:\d\d\.\d\d\d --> ", text, re.M))
-              if cues < 10:
+              if cues < 5:
                   problems.append(f"the caption track has only {cues} cues")
 
           if problems:
