@@ -25,7 +25,7 @@ Seven punchy scenes, under 2 minutes:
 | 3 | 4-Tier Architecture | contracts on Testnet, backend SDK, Next.js console, docs hub |
 | 4 | Gateway & Escrow | Soroban execution flow: immediate settlement on approval, escrow on flag, revert on block |
 | 5 | Console & Simulator | live treasury console on Vercel and zero-drift client-side simulator |
-| 6 | Verified on Testnet | Testnet contracts, 850+ tests, 270 error codes, ~0.001 XLM fees, 200 Wave issues |
+| 6 | Verified on Testnet | Testnet contracts, 850+ tests, 270 error codes, ~0.001 XLM fees, 200+ contribution issues |
 | 7 | Get Started | privacy and compliance are not a trade-off; live links |
 
 ## Layout

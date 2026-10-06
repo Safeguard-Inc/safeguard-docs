@@ -25,7 +25,7 @@ against the chain.
 - [Running locally](#running-locally)
 - [How the video is built](#how-the-video-is-built)
 - [CI and deployment](#ci-and-deployment)
-- [Contributing (Stellar Drips Wave)](#contributing-stellar-drips-wave)
+- [Contributing](#contributing)
 - [License](#license)
 
 ---
@@ -151,9 +151,9 @@ See [`video/README.md`](video/README.md) for requirements.
 - **Deploy** ([`deploy.yml`](.github/workflows/deploy.yml)): pushes to `main`
   deploy to Vercel. `vercel.json` sets security headers and caching.
 
-## Contributing (Stellar Drips Wave)
+## Contributing
 
-Good first contributions: new demo scenarios, more golden-parity cases,
+We welcome community contributions: new demo scenarios, more golden-parity cases,
 accessibility fixes, and translations.
 [Browse open issues](https://github.com/Safeguard-Inc/safeguard-docs/issues) ·
 [CONTRIBUTING.md](CONTRIBUTING.md) · [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) ·
