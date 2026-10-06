@@ -1,45 +1,29 @@
 WEBVTT
 
 1
-00:00:00.280 --> 00:00:05.848
-Safeguard. Compliant privacy and payment gateway for Stellar confidential tokens.
+00:00:00.280 --> 00:00:05.464
+Safeguard: Compliant privacy and payment gateway for Stellar confidential tokens.
 
 2
-00:00:05.947 --> 00:00:40.099
-Every bank, fund and fintech on the planet is being asked the same question. Can you move money onto a public blockchain without publishing your clients' balances? Confidential tokens on Stellar finally answer yes. Transactions are encrypted, amounts and balances are hidden, and the transfer still settles on a public ledger. But privacy creates a new problem, and it is the one that actually kills deals. If nobody can see the transfer, how does anyone prove it was allowed? Regulators do not accept trust us. And compliance cannot be a screenshot.
+00:00:05.480 --> 00:00:21.296
+Confidential tokens on Stellar encrypt amounts and balances to protect privacy. But without visibility, proving compliance is difficult. Retrospective reports cannot prevent violations; compliance decisions must occur inside the transaction before funds move.
 
 3
-00:00:40.214 --> 00:01:04.574
-Most compliance tooling answers this with a report. A dashboard. Something a human reads after the fact. That is the wrong shape entirely. A confidential operation needs a decision at the moment it happens, inside the transaction, before a single unit moves. And if that decision cannot be made, the operation must not proceed. Not flagged. Not logged. Not proceed.
+00:00:21.280 --> 00:00:38.176
+Safeguard provides that in-transaction gate across four coordinated tiers: Soroban smart contracts on Stellar Testnet, our TypeScript client SDK, a live Next.js Web3 console on Vercel, and a developer documentation hub with a zero-drift policy simulator.
 
 4
-00:01:04.681 --> 00:01:41.449
-Safeguard delivers that decision layer through a modern four-tier architecture. First, safeguard-contracts: Soroban smart contracts providing a payment gateway, spend-cap escrow, and fail-closed policy hooks. Second, safeguard-backend: a TypeScript SDK and simulation API that validates transfers before submission. Third, safeguard-dashboard: a live Next.js 14 institutional console on Vercel for treasury management and audit oversight. And fourth, safeguard-docs: a developer hub running the real policy engine in the browser.
+00:00:38.180 --> 00:00:55.244
+Execution is fail-closed. Transfers invoke the Soroban payment gateway, checking spend caps and evaluating policy rules. Compliant transfers settle immediately. Flagged transfers route securely into escrow, while violations revert instantly at the contract level.
 
 5
-00:01:41.548 --> 00:02:14.548
-The execution flow is strictly one-way and fail-closed. A client application or automated treasury invokes the Soroban payment gateway. The contract verifies that the transfer does not exceed active spend caps, checks timelocks, and calls the compliance hooks. The hooks ask the policy engine one question: is this account authorized? One call, one boolean. If anything is amiss, expired timelocks, exceeded caps, sanctions matches, or frozen accounts, the transaction reverts immediately.
+00:00:55.247 --> 00:01:10.583
+Treasury teams monitor spend caps and escrows via our live Web3 console on Vercel. In parallel, developers can test policies directly in our documentation simulator, running the exact decision engine client-side with zero latency.
 
 6
-00:02:14.648 --> 00:02:49.040
-Here is the property that makes the system audit-grade: there is no unknown state. An unbound token reverts with code two. An account frozen, code four. An exceeded spend cap, code twenty. An active timelock, code twenty-one. Across Soroban contracts, the TypeScript SDK, and the Next.js console, two hundred and seventy structured error codes provide deterministic, machine-checked diagnostics. Codes are never reused, ensuring that an audit record from years ago retains its precise original meaning.
+00:01:10.581 --> 00:01:26.541
+Every contract is live on Stellar Testnet. The codebase features over 850 automated tests, 270 machine-checked error codes, measured fees of 0.001 XLM, and 200 scoped contribution issues for the Stellar Drips Wave.
 
 7
-00:02:49.148 --> 00:03:14.084
-For operational teams, Safeguard provides a production-grade Web3 console, deployed live on Vercel. Connected directly to Stellar Testnet, the dashboard allows compliance officers and treasury managers to monitor active spend caps, inspect escrow timelocks, review flagged events, and test policy decisions interactively. No command line required, no opaque ledger queries.
-
-8
-00:03:14.182 --> 00:03:40.750
-Alongside the console, our documentation hub hosts the client-side simulator. Choose an account's jurisdiction, status, or sanctions risk, and watch the engine decide in real-time. Compliant parties are approved; sanctioned or frozen accounts are instantly blocked, with complete rule attribution. A twenty-four test suite verifies that the browser simulator reproduces our on-chain golden fixtures with zero drift.
-
-9
-00:03:40.849 --> 00:04:08.065
-None of this is hypothetical. The entire contract suite is deployed on Stellar Testnet and actively monitored. Our ten-point automated verification suite proves live ledger responsiveness and fail-closed guarantees without needing private keys. Over eight hundred and fifty tests run across all four repositories, and release-profile optimizations keep compliant payment execution down to approximately a thousandth of an XLM.
-
-10
-00:04:08.149 --> 00:04:32.749
-The entire Safeguard organization is fully open source. We restructured the project into four clean, focused repositories with continuous integration on every one. To foster community growth, we created fifty-two structured contribution issues tagged with Stellar Wave labels and complexity ratings, covering property testing, SDK extensions, and advanced telemetry.
-
-11
-00:04:32.849 --> 00:04:54.689
-Privacy and compliance are no longer a trade-off. Safeguard provides confidential payments by default, compliance by construction, and cryptographic auditability after the fact. The contracts are live on Stellar Testnet, the dashboard is running on Vercel, and the repositories are open today. Come build the future of compliant DeFi on Stellar.
+00:01:26.548 --> 00:01:36.772
+Privacy and compliance are no longer a trade-off. Visit safeguard-dashboard-mocha.vercel.app, read the documentation, and start building with Safeguard on GitHub today.

@@ -1,6 +1,6 @@
 # Pitch video
 
-The ~5-minute product pitch for the Safeguard stack. It is **built from this
+The ~1.6-minute (97s) product pitch for the Safeguard stack. It is **built from this
 repository**, not edited by hand: the slides, the live captures, the voice-over
 and the edit are all produced by the scripts here, so the video can be
 regenerated on any machine and cannot drift away from what the project
@@ -16,21 +16,17 @@ which the Vercel deployment serves and every repository's README links to.
 
 ## What it says
 
-Eleven scenes, in the order a reviewer, investor or technical buyer needs them:
+Seven punchy scenes, under 2 minutes:
 
 | # | Scene | Beat |
 | - | ----- | ---- |
-| 1 | Safeguard | title |
-| 2 | The problem | confidential transfers are private, which is what makes "prove it was allowed" hard |
-| 3 | Why reports don't work | compliance must decide inside the transaction, not after it |
-| 4 | What Safeguard is | DEFINE / ENFORCE / VERIFY, one decision path |
-| 5 | Architecture | one call, one boolean — the enforcement layer never sees the rules |
-| 6 | No unknown state | typed, assign-only error codes; it refuses rather than guesses |
-| 7 | Live deployment | the real engine, driven in the browser on the deployed site |
-| 8 | Verify | ledger events become evidence: normalised, digest-chained, classifiable |
-| 9 | Verified, not asserted | Testnet contract ids, the read-only smoke test, test counts, cost |
-| 10 | Open source | the issue backlog and the CI that keeps the numbers honest |
-| 11 | Conclusion | privacy and compliance are not a trade-off |
+| 1 | Safeguard | title & hook |
+| 2 | The problem | confidential tokens require compliance decisions inside the transaction |
+| 3 | 4-Tier Architecture | contracts on Testnet, backend SDK, Next.js console, docs hub |
+| 4 | Gateway & Escrow | Soroban execution flow: immediate settlement on approval, escrow on flag, revert on block |
+| 5 | Console & Simulator | live treasury console on Vercel and zero-drift client-side simulator |
+| 6 | Verified on Testnet | Testnet contracts, 850+ tests, 270 error codes, ~0.001 XLM fees, 200 Wave issues |
+| 7 | Get Started | privacy and compliance are not a trade-off; live links |
 
 ## Layout
 

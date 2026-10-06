@@ -3,7 +3,7 @@
 [![CI](https://github.com/Safeguard-Inc/safeguard-docs/actions/workflows/ci.yml/badge.svg)](https://github.com/Safeguard-Inc/safeguard-docs/actions/workflows/ci.yml)
 [![Deployment](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsafeguard-docs.vercel.app%2Fdata%2Fdeployment.json&query=%24.status&label=Vercel&color=4ade9b)](https://safeguard-docs.vercel.app)
 [![Engine parity tests](https://img.shields.io/badge/engine_parity-24_passing-4ade9b)](tests/engine.test.mjs)
-[![Pitch video](https://img.shields.io/badge/pitch_video-5_minutes-4ade9b)](https://safeguard-docs.vercel.app/assets/video/safeguard-pitch.mp4)
+[![Pitch video](https://img.shields.io/badge/pitch_video-%3C2_min-4ade9b)](https://safeguard-docs.vercel.app/assets/video/safeguard-pitch.mp4)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 **The documentation hub for Safeguard: policy-guarded payments on Stellar.**
@@ -32,9 +32,9 @@ against the chain.
 
 ## Pitch video
 
-[![Watch the five-minute pitch](assets/video/safeguard-pitch-poster.jpg)](https://safeguard-docs.vercel.app/assets/video/safeguard-pitch.mp4)
+[![Watch the Safeguard pitch video (<2 min)](assets/video/safeguard-pitch-poster.jpg)](https://safeguard-docs.vercel.app/assets/video/safeguard-pitch.mp4)
 
-Five minutes, end to end: the problem, the architecture, the decision engine
+Under two minutes (97s), end to end: the problem, the architecture, the decision engine
 running in a browser, and the contracts on Testnet. Captions are in
 [`assets/video/safeguard-pitch.vtt`](assets/video/safeguard-pitch.vtt).
 

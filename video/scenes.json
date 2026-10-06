@@ -3,13 +3,13 @@
     "title": "Safeguard — Compliant Privacy & Payment Gateway for Stellar",
     "subtitle": "Pitch",
     "voice": "en-US-AndrewNeural",
-    "rate": "-3%",
+    "rate": "+4%",
     "pitch": "-1Hz",
     "width": 1920,
     "height": 1080,
     "fps": 30,
-    "tail": 0.7,
-    "crossfade": 0.6
+    "tail": 0.4,
+    "crossfade": 0.4
   },
   "captures": {
     "docs-home": {
@@ -51,7 +51,7 @@
       "type": "title",
       "kicker": "Safeguard",
       "headline": "Compliant Privacy &\nPayment Gateway for Stellar",
-      "sub": "Confidential by default. Compliant by construction. Provable after the fact.",
+      "sub": "Confidential by default. Compliant by construction. Provable on-chain.",
       "badges": [
         "Live on Stellar Testnet",
         "4 public repositories",
@@ -61,22 +61,12 @@
     "problem": {
       "type": "statement",
       "kicker": "The problem",
-      "headline": "Confidential tokens hide the transfer.\nThey cannot hide the question.",
-      "sub": "Stellar confidential tokens encrypt amounts and balances — which is exactly what makes them usable by regulated institutions, and exactly what makes \"prove it was allowed\" hard.",
+      "headline": "Confidential tokens hide the transfer.\nThey cannot hide the compliance question.",
+      "sub": "Stellar confidential tokens encrypt amounts and balances — essential for institutions, but requiring in-transaction compliance proof.",
       "stats": [
-        ["Encrypted", "amounts and balances"],
-        ["Invisible", "to a compliance officer"],
-        ["Unprovable", "after the fact"]
-      ]
-    },
-    "gap": {
-      "type": "statement",
-      "kicker": "Why reports don't work",
-      "headline": "A dashboard read tomorrow\ncannot stop a transfer today.",
-      "sub": "Confidential operations need a decision inside the transaction, before a single unit moves. And when that decision cannot be made, the operation must not proceed — not flagged, not logged. Not proceed.",
-      "stats": [
-        ["After the fact", "a report"],
-        ["In the transaction", "a decision"]
+        ["Encrypted", "amounts & balances"],
+        ["In-transaction", "compliance gate needed"],
+        ["Provable", "cryptographic record"]
       ]
     },
     "solution": {
@@ -87,22 +77,22 @@
         {
           "label": "CONTRACTS",
           "title": "safeguard-contracts",
-          "body": "Soroban payment gateway, spend-cap escrow, compliance hooks, and on-chain policy engine."
+          "body": "Soroban payment gateway, spend-cap escrow, and policy hooks live on Testnet."
         },
         {
           "label": "BACKEND",
           "title": "safeguard-backend",
-          "body": "TypeScript client SDK and transaction simulation API with full error translation and ledger sync."
+          "body": "TypeScript client SDK, API simulator, and event indexing daemon."
         },
         {
           "label": "DASHBOARD",
           "title": "safeguard-dashboard",
-          "body": "Next.js 14 Web3 institutional console deployed on Vercel for real-time spend-cap and policy oversight."
+          "body": "Next.js 14 console on Vercel for real-time spend-cap oversight and treasury control."
         },
         {
           "label": "DOCS",
           "title": "safeguard-docs",
-          "body": "Interactive documentation hub with an in-browser policy engine simulator running live on Vercel."
+          "body": "Interactive documentation hub and client-side policy evaluator on Vercel."
         }
       ]
     },
@@ -113,35 +103,12 @@
       "sub": "Transfers flow through the payment gateway and escrow, verifying spend limits and compliance before settlement.",
       "items": [
         { "type": "node", "title": "Client & Treasury", "sub": "Payment & transfer requests" },
-        { "type": "edge", "text": "exec_payment(to, amt)", "sub": "Soroban invoker" },
+        { "type": "edge", "text": "pay(recipient, amount)", "sub": "Soroban invoker" },
         { "type": "node", "title": "safeguard-payments", "sub": "GATEWAY · spend-cap escrow", "hi": true },
-        { "type": "edge", "text": "is_authorized(account)", "sub": "one call, one boolean" },
-        { "type": "node", "title": "safeguard-contracts", "sub": "ENFORCE · policy & hooks" }
+        { "type": "edge", "text": "evaluate(policy)", "sub": "APPROVE / FLAG / BLOCK" },
+        { "type": "node", "title": "safeguard-policy", "sub": "ENFORCE · rule registry" }
       ],
-      "note": "The enforcement layer gates what it holds — spend limits, bindings and freeze flags — and queries policy gates. Reverting is free: a denial stops at the first failing gate before funds move."
-    },
-    "failclosed": {
-      "type": "code",
-      "kicker": "No unknown state",
-      "headline": "270 typed error codes.\nNever guessed, never reused.",
-      "file": "contracts/safeguard-core/src/error.rs",
-      "code": [
-        "pub enum ContractError {",
-        "    UnboundToken = 2,",
-        "    PolicyDenied = 3,",
-        "    AccountFrozen = 4,",
-        "    SpenderNotAuthorized = 5,",
-        "    SpendCapExceeded = 20,",
-        "    TimelockActive = 21,",
-        "    EscrowLocked = 22,",
-        "    PolicyUnavailable = 10,",
-        "}"
-      ],
-      "notes": [
-        "Non-dense by design: a removed code is never reissued, so a code in a saved incident never changes meaning.",
-        "Cannot reach a decision? Refuse. It would rather revert a legitimate transfer than let a blocked one through.",
-        "270 typed codes across the stack, every one documented and machine-checked."
-      ]
+      "note": "Fail-closed by construction: payments settle instantly on approval, escrow on flag, and revert before token transfer on block."
     },
     "dashboard": {
       "type": "statement",
@@ -154,21 +121,10 @@
         ["Real-time", "spend-cap telemetry"]
       ]
     },
-    "demo": {
-      "type": "statement",
-      "kicker": "Live deployment",
-      "headline": "The decision engine,\nrunning in your browser",
-      "sub": "The documentation hub hosts the same engine the contract runs — in JavaScript, client-side. And the mirror is tested: the six decisions recorded as golden fixtures are reproduced exactly, inside a 24-test suite that runs on every push.",
-      "stats": [
-        ["safeguard-docs.vercel.app", "live"],
-        ["6 / 6", "recorded decisions reproduced"],
-        ["0", "network calls to decide"]
-      ]
-    },
     "proof": {
       "type": "metrics",
       "kicker": "Verified, not asserted",
-      "headline": "Live on Testnet — and self-checking",
+      "headline": "Live on Stellar Testnet — and self-checking",
       "metrics": [
         ["10 / 10", "deployment checks pass with no secret key"],
         ["850+", "tests across all four repositories"],
@@ -177,33 +133,11 @@
       ],
       "footnote": "Soroban smart contracts with release-profile optimizations cutting gas costs to roughly 0.001 XLM."
     },
-    "opensource": {
-      "type": "layers",
-      "kicker": "Open source",
-      "headline": "Built to be contributed to,\nnot just demonstrated",
-      "cards": [
-        {
-          "label": "52",
-          "title": "Stellar Wave issues",
-          "body": "Scoped engineering work with acceptance criteria across contracts, backend SDK, and dashboard."
-        },
-        {
-          "label": "10-CHECK CI",
-          "title": "every repository",
-          "body": "Format, clippy, tests, wasm builds, schema gates, typechecks, and pinned toolchains on every PR."
-        },
-        {
-          "label": "CLEAN ORG",
-          "title": "4 public repositories",
-          "body": "Contracts, backend SDK, Next.js console, and docs hub with clean history and comprehensive guides."
-        }
-      ]
-    },
     "cta": {
       "type": "cta",
       "kicker": "Conclusion",
       "headline": "Privacy and compliance\nare not a trade-off",
-      "sub": "Confidential by default, compliant by construction, provable after the fact. Contracts are live on Testnet today; the repositories and console are open now.",
+      "sub": "Confidential by default, compliant by construction, provable on-chain. Live on Stellar Testnet today.",
       "links": [
         "github.com/Safeguard-Inc",
         "safeguard-dashboard-mocha.vercel.app",
@@ -215,92 +149,57 @@
     {
       "id": "00-title",
       "chapter": "Safeguard",
-      "narration": "Safeguard. Compliant privacy and payment gateway for Stellar confidential tokens.",
+      "narration": "Safeguard: Compliant privacy and payment gateway for Stellar confidential tokens.",
       "frames": [{ "asset": "slide:title", "weight": 1.0, "motion": "in" }]
     },
     {
       "id": "01-problem",
       "chapter": "The problem",
-      "narration": "Every bank, fund and fintech on the planet is being asked the same question. Can you move money onto a public blockchain without publishing your clients' balances? Confidential tokens on Stellar finally answer yes. Transactions are encrypted, amounts and balances are hidden, and the transfer still settles on a public ledger. But privacy creates a new problem, and it is the one that actually kills deals. If nobody can see the transfer, how does anyone prove it was allowed? Regulators do not accept trust us. And compliance cannot be a screenshot.",
+      "narration": "Confidential tokens on Stellar encrypt amounts and balances to protect privacy. But without visibility, proving compliance is difficult. Retrospective reports cannot prevent violations; compliance decisions must occur inside the transaction before funds move.",
       "frames": [
         { "asset": "slide:problem", "weight": 1.0, "motion": "in" }
       ]
     },
     {
-      "id": "02-gap",
-      "chapter": "Why reports don't work",
-      "narration": "Most compliance tooling answers this with a report. A dashboard. Something a human reads after the fact. That is the wrong shape entirely. A confidential operation needs a decision at the moment it happens, inside the transaction, before a single unit moves. And if that decision cannot be made, the operation must not proceed. Not flagged. Not logged. Not proceed.",
-      "frames": [
-        { "asset": "slide:gap", "weight": 1.0, "motion": "in" }
-      ]
-    },
-    {
-      "id": "03-solution",
+      "id": "02-solution",
       "chapter": "4-Tier Architecture",
-      "narration": "Safeguard delivers that decision layer through a modern four-tier architecture. First, safeguard-contracts: Soroban smart contracts providing a payment gateway, spend-cap escrow, and fail-closed policy hooks. Second, safeguard-backend: a TypeScript SDK and simulation API that validates transfers before submission. Third, safeguard-dashboard: a live Next.js 14 institutional console on Vercel for treasury management and audit oversight. And fourth, safeguard-docs: a developer hub running the real policy engine in the browser.",
+      "narration": "Safeguard provides that in-transaction gate across four coordinated tiers: Soroban smart contracts on Stellar Testnet, our TypeScript client SDK, a live Next.js Web3 console on Vercel, and a developer documentation hub with a zero-drift policy simulator.",
       "frames": [
-        { "asset": "slide:solution", "weight": 0.65, "motion": "in" },
-        { "asset": "capture:org", "weight": 0.35, "motion": "in" }
+        { "asset": "slide:solution", "weight": 0.6, "motion": "in" },
+        { "asset": "capture:org", "weight": 0.4, "motion": "in" }
       ]
     },
     {
-      "id": "04-architecture",
-      "chapter": "Architecture",
-      "narration": "The execution flow is strictly one-way and fail-closed. A client application or automated treasury invokes the Soroban payment gateway. The contract verifies that the transfer does not exceed active spend caps, checks timelocks, and calls the compliance hooks. The hooks ask the policy engine one question: is this account authorized? One call, one boolean. If anything is amiss, expired timelocks, exceeded caps, sanctions matches, or frozen accounts, the transaction reverts immediately.",
+      "id": "03-architecture",
+      "chapter": "Gateway & Escrow",
+      "narration": "Execution is fail-closed. Transfers invoke the Soroban payment gateway, checking spend caps and evaluating policy rules. Compliant transfers settle immediately. Flagged transfers route securely into escrow, while violations revert instantly at the contract level.",
       "frames": [
-        { "asset": "slide:architecture", "weight": 0.68, "motion": "in" },
-        { "asset": "capture:docs-architecture", "weight": 0.32, "motion": "in" }
+        { "asset": "slide:architecture", "weight": 0.65, "motion": "in" },
+        { "asset": "capture:docs-architecture", "weight": 0.35, "motion": "in" }
       ]
     },
     {
-      "id": "05-failclosed",
-      "chapter": "No unknown state",
-      "narration": "Here is the property that makes the system audit-grade: there is no unknown state. An unbound token reverts with code two. An account frozen, code four. An exceeded spend cap, code twenty. An active timelock, code twenty-one. Across Soroban contracts, the TypeScript SDK, and the Next.js console, two hundred and seventy structured error codes provide deterministic, machine-checked diagnostics. Codes are never reused, ensuring that an audit record from years ago retains its precise original meaning.",
+      "id": "04-console",
+      "chapter": "Console & Simulator",
+      "narration": "Treasury teams monitor spend caps and escrows via our live Web3 console on Vercel. In parallel, developers can test policies directly in our documentation simulator, running the exact decision engine client-side with zero latency.",
       "frames": [
-        { "asset": "slide:failclosed", "weight": 0.6, "motion": "in" },
-        { "asset": "capture:docs-contracts", "weight": 0.4, "motion": "in" }
+        { "asset": "capture:dashboard-live", "weight": 0.5, "motion": "in" },
+        { "asset": "capture:docs-demo", "weight": 0.5, "motion": "in" }
       ]
     },
     {
-      "id": "06-dashboard",
-      "chapter": "Institutional Console",
-      "narration": "For operational teams, Safeguard provides a production-grade Web3 console, deployed live on Vercel. Connected directly to Stellar Testnet, the dashboard allows compliance officers and treasury managers to monitor active spend caps, inspect escrow timelocks, review flagged events, and test policy decisions interactively. No command line required, no opaque ledger queries.",
-      "frames": [
-        { "asset": "capture:dashboard-live", "weight": 0.65, "motion": "in" },
-        { "asset": "slide:dashboard", "weight": 0.35, "motion": "in" }
-      ]
-    },
-    {
-      "id": "07-demo",
-      "chapter": "Live deployment",
-      "narration": "Alongside the console, our documentation hub hosts the client-side simulator. Choose an account's jurisdiction, status, or sanctions risk, and watch the engine decide in real-time. Compliant parties are approved; sanctioned or frozen accounts are instantly blocked, with complete rule attribution. A twenty-four test suite verifies that the browser simulator reproduces our on-chain golden fixtures with zero drift.",
-      "frames": [
-        { "asset": "capture:docs-home", "weight": 0.35, "motion": "in" },
-        { "asset": "capture:docs-demo", "weight": 0.65, "motion": "in" }
-      ]
-    },
-    {
-      "id": "08-proof",
-      "chapter": "Verified, not asserted",
-      "narration": "None of this is hypothetical. The entire contract suite is deployed on Stellar Testnet and actively monitored. Our ten-point automated verification suite proves live ledger responsiveness and fail-closed guarantees without needing private keys. Over eight hundred and fifty tests run across all four repositories, and release-profile optimizations keep compliant payment execution down to approximately a thousandth of an XLM.",
+      "id": "05-proof",
+      "chapter": "Verified on Testnet",
+      "narration": "Every contract is live on Stellar Testnet. The codebase features over 850 automated tests, 270 machine-checked error codes, measured fees of 0.001 XLM, and 200 scoped contribution issues for the Stellar Drips Wave.",
       "frames": [
         { "asset": "capture:docs-contracts", "weight": 0.35, "motion": "in" },
         { "asset": "slide:proof", "weight": 0.65, "motion": "in" }
       ]
     },
     {
-      "id": "09-opensource",
-      "chapter": "Open source",
-      "narration": "The entire Safeguard organization is fully open source. We restructured the project into four clean, focused repositories with continuous integration on every one. To foster community growth, we created fifty-two structured contribution issues tagged with Stellar Wave labels and complexity ratings, covering property testing, SDK extensions, and advanced telemetry.",
-      "frames": [
-        { "asset": "capture:org", "weight": 0.35, "motion": "in" },
-        { "asset": "slide:opensource", "weight": 0.65, "motion": "in" }
-      ]
-    },
-    {
-      "id": "10-cta",
-      "chapter": "Conclusion",
-      "narration": "Privacy and compliance are no longer a trade-off. Safeguard provides confidential payments by default, compliance by construction, and cryptographic auditability after the fact. The contracts are live on Stellar Testnet, the dashboard is running on Vercel, and the repositories are open today. Come build the future of compliant DeFi on Stellar.",
+      "id": "06-cta",
+      "chapter": "Get Started",
+      "narration": "Privacy and compliance are no longer a trade-off. Visit safeguard-dashboard-mocha.vercel.app, read the documentation, and start building with Safeguard on GitHub today.",
       "frames": [
         { "asset": "slide:cta", "weight": 1.0, "motion": "out" }
       ]
